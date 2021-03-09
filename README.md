@@ -12,4 +12,3 @@ I hope my repository will enable you to easily produce scientific content with f
 ## Licence
 
 Commercial usage of the content, in any way, is prohibited.
-# articles
