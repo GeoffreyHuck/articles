@@ -1,0 +1,369 @@
+:stem: latexmath
+= Automatic differenciation for Gradient descent
+
+Automatic differenciation is an efficient way to compute the partial derivatives, also called the gradient, of a function. We will first analyse how it works on a simple example before applying it in the context of a multilayer neural network as the backpropagation algorithm for doing gradient descent.
+
+If you don't know what a gradient is, or if you need a refresher about the mathematical rules derivatives are calculated, I wrote an article about https://geoffreyhuck.com/articles/machine-learning-derivatives[the rules of derivatives and gradient].
+
+== The automatic differenciation algorithm
+
+Let's start by defining a vector of latexmath:[n = 5] elements latexmath:[\mathbf{v} = (1, 2, 3, 4, 5)] and the following example function :
+
+[latexmath]
+++++
+f(\mathbf{v}) = \sum_{i=1}^{n}(2 \cdot \mathbf{v}_{[i]}) + cos(\sum_{i=1}^{n} 2 \cdot \mathbf{v}_{[i]}) +\mathbf{v}_{[2]}
+++++
+
+To compute the gradient of this function, we need to calculate its derivatives with respect to each of the five variables :
+
+[latexmath]
+++++
+\nabla f = \left(
+\frac{\partial f}{\partial \mathbf{v}_{[1]}},
+\frac{\partial f}{\partial \mathbf{v}_{[2]}},
+\frac{\partial f}{\partial \mathbf{v}_{[3]}},
+\frac{\partial f}{\partial \mathbf{v}_{[4]}},
+\frac{\partial f}{\partial \mathbf{v}_{[5]}}]
+\right)
+++++
+
+We could calculate each one separately but imagine that latexmath:[\mathbf{v}] contained one million elements, that would not be very efficient. Instead, we will start by evaluating latexmath:[f(\mathbf{v})] while storing the intermediate steps. In a neural network, this step is equivalent to calculating a prediction from an input.
+
+
+=== Forward mode
+
+The first step is to calculate latexmath:[2 \cdot \mathbf{v}_{[i\]}] for each latexmath:[\mathbf{v}_{[i\]}]. We will put the result in the latexmath:[\mathbf{results\_2v}] vector.
+
+[latexmath]
+++++
+\mathbf{results\_2v} =
+(2 \cdot \mathbf{v}_{[1]}, 2 \cdot \mathbf{v}_{[2]}, 2 \cdot \mathbf{v}_{[3]}, 2 \cdot \mathbf{v}_{[4]}, 2 \cdot \mathbf{v}_{[5]}) =
+(2, 4, 6, 8, 10)
+++++
+
+Now we can compute the sum and store it in a latexmath:[sum\_2v] variable :
+
+[latexmath]
+++++
+sum\_2v = \sum_{i=1}^{n}(\mathbf{results\_2v}_{[i]}) =
+(2 + 4 + 6 + 8 + 10) =
+30
+++++
+
+Then we need to calculate the cosinus of the sum, we will round the value at 5 decimals for convenience :
+
+[latexmath]
+++++
+cos\_sum\_2v = cos(sum\_2v) = cos(30) = 0.15425
+++++
+
+We finally have everything we need to calculate the final result :
+
+[latexmath]
+++++
+result = f(\mathbf{v}) = sum\_2v + cos\_sum\_2v + \mathbf{v}_2 = 30 + 0.15425 + 2 = 32.15425
+++++
+
+
+=== Reverse mode
+
+We will now propagate the derivatives backwards, starting from latexmath:[result] towards latexmath:[\mathbf{v}] to calculate the gradient of latexmath:[f]. We start by calculating the derivatives of latexmath:[f] with respect to latexmath:[result], which is easy because latexmath:[f = result]. Since we want all the partial derivatives (the gradient) of latexmath:[f], we will have a vector of derivatives at each step.
+
+[latexmath]
+++++
+\frac{\partial f}{\partial(result)} =
+\begin{pmatrix}
+\frac{\partial (result)}{\partial(result)} = 1 \\
+\frac{\partial (result)}{\partial(result)} = 1 \\
+\frac{\partial (result)}{\partial(result)} = 1 \\
+\frac{\partial (result)}{\partial(result)} = 1 \\
+\frac{\partial (result)}{\partial(result)} = 1
+\end{pmatrix} =
+\begin{pmatrix}
+1 \\
+1 \\
+1 \\
+1 \\
+1
+\end{pmatrix}
+++++
+
+Now that we have this, we will calculate the gradient latexmath:[\nabla f] with respect to latexmath:[cos\_sum\_2v] because it was the last step before calculating latexmath:[result]. The idea is that we have the following relation :
+
+[latexmath]
+++++
+    f(cos\_sum\_2v) = f(result(cos\_sum\_2v))
+++++
+[latexmath]
+++++
+    f'(cos\_sum\_2v) = f(result(cos\_sum\_2v))'
+++++
+
+and therefore we can use the chain rule latexmath:[(f \circ g)' = (f' \circ g) \cdot g'] which can be noted as latexmath:[\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)}].
+
+
+[latexmath]
+++++
+\frac{\partial f}{\partial(cos\_sum\_2v)} =
+\begin{pmatrix}
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v + \mathbf{v}_2)}{\partial(cos\_sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v + \mathbf{v}_2)}{\partial(cos\_sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v + \mathbf{v}_2)}{\partial(cos\_sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v + \mathbf{v}_2)}{\partial(cos\_sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v + \mathbf{v}_2)}{\partial(cos\_sum\_2v)}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot 1 \\
+1 \cdot (1 + 1) \\
+1 \cdot 1 \\
+1 \cdot 1 \\
+1 \cdot 1
+\end{pmatrix} =
+\begin{pmatrix}
+1 \\
+2 \\
+1 \\
+1 \\
+1
+\end{pmatrix}
+++++
+
+And we can continue with latexmath:[sum\_2v] using the same trick :
+
+[latexmath]
+++++
+f(sum\_2v) = result(cos\_sum\_2v(sum\_2v))
+++++
+[latexmath]
+++++
+f'(sum\_2v) = result(cos\_sum\_2v(sum\_2v))'
+++++
+[latexmath]
+++++
+\frac{\partial f}{\partial(sum\_2v)} =
+\begin{pmatrix}
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v)}{\partial(sum\_2v)} \\
+2 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v)}{\partial(sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v)}{\partial(sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v)}{\partial(sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v)}{\partial(sum\_2v)}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot 1 \\
+2 \cdot 1 \\
+1 \cdot 1 \\
+1 \cdot 1 \\
+1 \cdot 1
+\end{pmatrix} =
+\begin{pmatrix}
+1 \\
+2 \\
+1 \\
+1 \\
+1
+\end{pmatrix}
+++++
+
+Now it is time for latexmath:[\mathbf{results\_2v}] :
+
+[latexmath]
+++++
+f(\mathbf{results\_2v}) = f(sum\_2v(\mathbf{results\_2v}))
+++++
+[latexmath]
+++++
+f'(\mathbf{results\_2v}) = f(sum\_2v(\mathbf{results\_2v}))'
+++++
+[latexmath]
+++++
+\frac{\partial f}{\partial(\mathbf{results\_2v})} =
+\begin{pmatrix}
+\frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[1]}})} \\
+\frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[2]}})} \\
+\frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[3]}})} \\
+\frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[4]}})} \\
+\frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[5]}})}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot \frac{\partial(\mathbf{results\_2v_{[1]}})}{\partial(\mathbf{results\_2v_{[1]}})} \\
+2 \cdot \frac{\partial(\mathbf{results\_2v_{[2]}})}{\partial(\mathbf{results\_2v_{[2]}})} \\
+1 \cdot \frac{\partial(\mathbf{results\_2v_{[3]}})}{\partial(\mathbf{results\_2v_{[3]}})} \\
+1 \cdot \frac{\partial(\mathbf{results\_2v_{[4]}})}{\partial(\mathbf{results\_2v_{[4]}})} \\
+1 \cdot \frac{\partial(\mathbf{results\_2v_{[5]}})}{\partial(\mathbf{results\_2v_{[5]}})}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot 1 \\
+2 \cdot 1 \\
+1 \cdot 1 \\
+1 \cdot 1 \\
+1 \cdot 1
+\end{pmatrix} =
+\begin{pmatrix}
+1 \\
+2 \\
+1 \\
+1 \\
+1
+\end{pmatrix}
+++++
+
+And finally the last step :
+
+[latexmath]
+++++
+f(\mathbf{v}) = f(\mathbf{results\_2v}(\mathbf{v}))
+++++
+[latexmath]
+++++
+f'(\mathbf{v}) = f(\mathbf{results\_2v}(\mathbf{v}))'
+++++
+[latexmath]
+++++
+\frac{\partial f}{\partial \mathbf{v}} =
+\frac{\partial f}{\partial(\mathbf{results\_2v})} \cdot \frac{\partial (\mathbf{results\_2v}))}{\partial \mathbf{v}} =
+\begin{pmatrix}
+\frac{\partial f}{\partial(\mathbf{results\_2v}_{[1]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[1]})}{\partial\mathbf{v}_{[1]}} \\
+\frac{\partial f}{\partial(\mathbf{results\_2v}_{[2]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[2]})}{\partial\mathbf{v}_{[2]}} \\
+\frac{\partial f}{\partial(\mathbf{results\_2v}_{[3]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[3]})}{\partial\mathbf{v}_{[3]}} \\
+\frac{\partial f}{\partial(\mathbf{results\_2v}_{[4]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[4]})}{\partial\mathbf{v}_{[4]}} \\
+\frac{\partial f}{\partial(\mathbf{results\_2v}_{[5]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[5]})}{\partial \mathbf{v}_{[5]}}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot \frac{\partial (2 \cdot \mathbf{v}_{[1]})}{\partial\mathbf{v}_{[1]}} \\
+2 \cdot \frac{\partial (2 \cdot \mathbf{v}_{[2]})}{\partial\mathbf{v}_{[2]}} \\
+1 \cdot \frac{\partial (2 \cdot \mathbf{v}_{[3]})}{\partial\mathbf{v}_{[3]}} \\
+1 \cdot \frac{\partial (2 \cdot \mathbf{v}_{[4]})}{\partial\mathbf{v}_{[4]}} \\
+1 \cdot \frac{\partial (2 \cdot \mathbf{v}_{[5]})}{\partial \mathbf{v}_{[5]}}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot 2 \\
+2 \cdot 2 \\
+1 \cdot 2 \\
+1 \cdot 2 \\
+1 \cdot 2
+\end{pmatrix} =
+\begin{pmatrix}
+2 \\
+4 \\
+2 \\
+2 \\
+2
+\end{pmatrix}
+++++
+
+The resulting vector is the gradient of latexmath:[f] :
+
+[latexmath]
+++++
+\nabla f = (2, 4, 2, 2, 2)
+++++
+
+== Study case : a simple feed forward neural network
+
+Here's a simple Feed-Forward Neural Network :
+
+[graphviz, simple_ffnn, png, alt="Simple Feed-Forward Neural Network", align="center"]
+....
+digraph SimpleFFNN {
+    rankdir = LR;
+    splines=false;
+    edge[style=invis];
+    ranksep= 1.4;
+    {
+        node [shape=circle, color=black, style=filled, fillcolor=black, fontcolor=white, fixedsize=true, width=0.7, height=0.7];
+
+        in0 [label=<in<sub>0</sub>>];
+        h02 [label=<h<sub>0</sub>>];
+    }
+    {
+        node [shape=circle, color=black, style=filled, fillcolor=yellow, fixedsize=true, width=0.7, height=0.7];
+
+
+        in1 [label=<in<sub>1</sub>>];
+        in2 [label=<in<sub>2</sub>>];
+        in3 [label=<in<sub>3</sub>>];
+    }
+    {
+        node [shape=circle, color=black, style=filled, fillcolor=purple, fixedsize=true, width=0.7, height=0.7];
+
+        h12 [label=<h<sub>1</sub>>];
+        h22 [label=<h<sub>2</sub>>];
+        h32 [label=<h<sub>3</sub>>];
+        h42 [label=<h<sub>4</sub>>];
+        h52 [label=<h<sub>5</sub>>];
+    }
+    {
+        node [shape=circle, color=black, style=filled, fillcolor=orangered, fixedsize=true, width=0.7, height=0.7];
+
+        out1 [label=<out<sub>1</sub>>];
+        out2 [label=<out<sub>2</sub>>];
+        out3 [label=<out<sub>3</sub>>];
+        out4 [label=<out<sub>4</sub>>];
+    }
+    {
+        rank=same;
+        in0->in1->in2->in3;
+    }
+    {
+        rank=same;
+        h02->h12->h22->h32->h42->h52;
+    }
+    {
+        rank=same;
+        out1->out2->out3->out4;
+    }
+    l0 [shape=plaintext, label="Input layer"];
+    l0->in0;
+    {rank=same; l0;in0};
+
+    l1 [shape=plaintext, label="<out<sub>1</sub>><&Sigma;(out<sub>1</sub>)>"];
+    l1->h02;
+    {
+        rank=same;
+        l1;
+        h02;
+    }
+
+    l2 [shape=plaintext, label="Output layer"];
+    l2->out1;
+    {
+        rank=same;
+        l2;
+        out1;
+    }
+
+    edge[style=solid, tailport=e, arrowsize=0.6];
+
+    {in0; in1; in2; in3} -> {h12;h22;h32;h42;h52};
+    {h02;h12;h22;h32;h42;h52} -> {out1,out2,out3,out4};
+}
+....
+
+[latexmath]
+++++
+\mathbf{h}_{[i]} = activation(\sum_{edge=0}^{n\_in} Weight\_h_{[i][edge]} \cdot \mathbf{in}_{[i]})
+++++
+
+[latexmath]
+++++
+\mathbf{out}_{[i]} = activation(\sum_{edge=0}^{n\_h} Weight\_out_{[i][edge]} \cdot \mathbf{in}_{[i]})
+++++
+
+[latexmath]
+++++
+\mathbf{out} = activation(activation(\mathbf{in} \cdot Weight\_h) \cdot Weight\_out)
+++++

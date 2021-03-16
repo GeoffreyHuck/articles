@@ -1,0 +1,328 @@
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Automatic differenciation is an efficient way to compute the partial derivatives, also called the gradient, of a function. We will first analyse how it works on a simple example before applying it in the context of a multilayer neural network as the backpropagation algorithm for doing gradient descent.</p>
+</div>
+<div class="paragraph">
+<p>If you don&#8217;t know what a gradient is, or if you need a refresher about the mathematical rules derivatives are calculated, I wrote an article about <a href="https://geoffreyhuck.com/articles/machine-learning-derivatives">the rules of derivatives and gradient</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_automatic_differenciation_algorithm">The automatic differenciation algorithm</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let&#8217;s start by defining a vector of \(n = 5\) elements \(\mathbf{v} = (1, 2, 3, 4, 5)\) and the following example function :</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f(\mathbf{v}) = \sum_{i=1}^{n}(2 \cdot \mathbf{v}_{[i]}) + cos(\sum_{i=1}^{n} 2 \cdot \mathbf{v}_{[i]}) +\mathbf{v}_{[2]}\]
+</div>
+</div>
+<div class="paragraph">
+<p>To compute the gradient of this function, we need to calculate its derivatives with respect to each of the five variables :</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\nabla f = \left(
+\frac{\partial f}{\partial \mathbf{v}_{[1]}},
+\frac{\partial f}{\partial \mathbf{v}_{[2]}},
+\frac{\partial f}{\partial \mathbf{v}_{[3]}},
+\frac{\partial f}{\partial \mathbf{v}_{[4]}},
+\frac{\partial f}{\partial \mathbf{v}_{[5]}}]
+\right)\]
+</div>
+</div>
+<div class="paragraph">
+<p>We could calculate each one separately but imagine that \(\mathbf{v}\) contained one million elements, that would not be very efficient. Instead, we will start by evaluating \(f(\mathbf{v})\) while storing the intermediate steps. In a neural network, this step is equivalent to calculating a prediction from an input.</p>
+</div>
+<div class="sect2">
+<h3 id="_forward_mode">Forward mode</h3>
+<div class="paragraph">
+<p>The first step is to calculate \(2 \cdot \mathbf{v}_{[i]}\) for each \(\mathbf{v}_{[i]}\). We will put the result in the \(\mathbf{results\_2v}\) vector.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\mathbf{results\_2v} =
+(2 \cdot \mathbf{v}_{[1]}, 2 \cdot \mathbf{v}_{[2]}, 2 \cdot \mathbf{v}_{[3]}, 2 \cdot \mathbf{v}_{[4]}, 2 \cdot \mathbf{v}_{[5]}) =
+(2, 4, 6, 8, 10)\]
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can compute the sum and store it in a \(sum\_2v\) variable :</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[sum\_2v = \sum_{i=1}^{n}(\mathbf{results\_2v}_{[i]}) =
+(2 + 4 + 6 + 8 + 10) =
+30\]
+</div>
+</div>
+<div class="paragraph">
+<p>Then we need to calculate the cosinus of the sum, we will round the value at 5 decimals for convenience :</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[cos\_sum\_2v = cos(sum\_2v) = cos(30) = 0.15425\]
+</div>
+</div>
+<div class="paragraph">
+<p>We finally have everything we need to calculate the final result :</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[result = f(\mathbf{v}) = sum\_2v + cos\_sum\_2v + \mathbf{v}_2 = 30 + 0.15425 + 2 = 32.15425\]
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_reverse_mode">Reverse mode</h3>
+<div class="paragraph">
+<p>We will now propagate the derivatives backwards, starting from \(result\) towards \(\mathbf{v}\) to calculate the gradient of \(f\). We start by calculating the derivatives of \(f\) with respect to \(result\), which is easy because \(f = result\). Since we want all the partial derivatives (the gradient) of \(f\), we will have a vector of derivatives at each step.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{\partial f}{\partial(result)} =
+\begin{pmatrix}
+\frac{\partial (result)}{\partial(result)} = 1 \\
+\frac{\partial (result)}{\partial(result)} = 1 \\
+\frac{\partial (result)}{\partial(result)} = 1 \\
+\frac{\partial (result)}{\partial(result)} = 1 \\
+\frac{\partial (result)}{\partial(result)} = 1
+\end{pmatrix} =
+\begin{pmatrix}
+1 \\
+1 \\
+1 \\
+1 \\
+1
+\end{pmatrix}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Now that we have this, we will calculate the gradient \(\nabla f\) with respect to \(cos\_sum\_2v\) because it was the last step before calculating \(result\). The idea is that we have the following relation :</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[    f(cos\_sum\_2v) = f(result(cos\_sum\_2v))\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[    f'(cos\_sum\_2v) = f(result(cos\_sum\_2v))'\]
+</div>
+</div>
+<div class="paragraph">
+<p>and therefore we can use the chain rule \((f \circ g)' = (f' \circ g) \cdot g'\) which can be noted as \(\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)}\).</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{\partial f}{\partial(cos\_sum\_2v)} =
+\begin{pmatrix}
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v + \mathbf{v}_2)}{\partial(cos\_sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v + \mathbf{v}_2)}{\partial(cos\_sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v + \mathbf{v}_2)}{\partial(cos\_sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v + \mathbf{v}_2)}{\partial(cos\_sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v + \mathbf{v}_2)}{\partial(cos\_sum\_2v)}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot 1 \\
+1 \cdot (1 + 1) \\
+1 \cdot 1 \\
+1 \cdot 1 \\
+1 \cdot 1
+\end{pmatrix} =
+\begin{pmatrix}
+1 \\
+2 \\
+1 \\
+1 \\
+1
+\end{pmatrix}\]
+</div>
+</div>
+<div class="paragraph">
+<p>And we can continue with \(sum\_2v\) using the same trick :</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f(sum\_2v) = result(cos\_sum\_2v(sum\_2v))\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f'(sum\_2v) = result(cos\_sum\_2v(sum\_2v))'\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{\partial f}{\partial(sum\_2v)} =
+\begin{pmatrix}
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)} \\
+\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v)}{\partial(sum\_2v)} \\
+2 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v)}{\partial(sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v)}{\partial(sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v)}{\partial(sum\_2v)} \\
+1 \cdot \frac{\partial (sum\_2v + cos\_sum\_2v)}{\partial(sum\_2v)}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot 1 \\
+2 \cdot 1 \\
+1 \cdot 1 \\
+1 \cdot 1 \\
+1 \cdot 1
+\end{pmatrix} =
+\begin{pmatrix}
+1 \\
+2 \\
+1 \\
+1 \\
+1
+\end{pmatrix}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Now it is time for \(\mathbf{results\_2v}\) :</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f(\mathbf{results\_2v}) = f(sum\_2v(\mathbf{results\_2v}))\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f'(\mathbf{results\_2v}) = f(sum\_2v(\mathbf{results\_2v}))'\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{\partial f}{\partial(\mathbf{results\_2v})} =
+\begin{pmatrix}
+\frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[1]}})} \\
+\frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[2]}})} \\
+\frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[3]}})} \\
+\frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[4]}})} \\
+\frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[5]}})}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot \frac{\partial(\mathbf{results\_2v_{[1]}})}{\partial(\mathbf{results\_2v_{[1]}})} \\
+2 \cdot \frac{\partial(\mathbf{results\_2v_{[2]}})}{\partial(\mathbf{results\_2v_{[2]}})} \\
+1 \cdot \frac{\partial(\mathbf{results\_2v_{[3]}})}{\partial(\mathbf{results\_2v_{[3]}})} \\
+1 \cdot \frac{\partial(\mathbf{results\_2v_{[4]}})}{\partial(\mathbf{results\_2v_{[4]}})} \\
+1 \cdot \frac{\partial(\mathbf{results\_2v_{[5]}})}{\partial(\mathbf{results\_2v_{[5]}})}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot 1 \\
+2 \cdot 1 \\
+1 \cdot 1 \\
+1 \cdot 1 \\
+1 \cdot 1
+\end{pmatrix} =
+\begin{pmatrix}
+1 \\
+2 \\
+1 \\
+1 \\
+1
+\end{pmatrix}\]
+</div>
+</div>
+<div class="paragraph">
+<p>And finally the last step :</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f(\mathbf{v}) = f(\mathbf{results\_2v}(\mathbf{v}))\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f'(\mathbf{v}) = f(\mathbf{results\_2v}(\mathbf{v}))'\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{\partial f}{\partial \mathbf{v}} =
+\frac{\partial f}{\partial(\mathbf{results\_2v})} \cdot \frac{\partial (\mathbf{results\_2v}))}{\partial \mathbf{v}} =
+\begin{pmatrix}
+\frac{\partial f}{\partial(\mathbf{results\_2v}_{[1]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[1]})}{\partial\mathbf{v}_{[1]}} \\
+\frac{\partial f}{\partial(\mathbf{results\_2v}_{[2]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[2]})}{\partial\mathbf{v}_{[2]}} \\
+\frac{\partial f}{\partial(\mathbf{results\_2v}_{[3]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[3]})}{\partial\mathbf{v}_{[3]}} \\
+\frac{\partial f}{\partial(\mathbf{results\_2v}_{[4]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[4]})}{\partial\mathbf{v}_{[4]}} \\
+\frac{\partial f}{\partial(\mathbf{results\_2v}_{[5]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[5]})}{\partial \mathbf{v}_{[5]}}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot \frac{\partial (2 \cdot \mathbf{v}_{[1]})}{\partial\mathbf{v}_{[1]}} \\
+2 \cdot \frac{\partial (2 \cdot \mathbf{v}_{[2]})}{\partial\mathbf{v}_{[2]}} \\
+1 \cdot \frac{\partial (2 \cdot \mathbf{v}_{[3]})}{\partial\mathbf{v}_{[3]}} \\
+1 \cdot \frac{\partial (2 \cdot \mathbf{v}_{[4]})}{\partial\mathbf{v}_{[4]}} \\
+1 \cdot \frac{\partial (2 \cdot \mathbf{v}_{[5]})}{\partial \mathbf{v}_{[5]}}
+\end{pmatrix} =
+\begin{pmatrix}
+1 \cdot 2 \\
+2 \cdot 2 \\
+1 \cdot 2 \\
+1 \cdot 2 \\
+1 \cdot 2
+\end{pmatrix} =
+\begin{pmatrix}
+2 \\
+4 \\
+2 \\
+2 \\
+2
+\end{pmatrix}\]
+</div>
+</div>
+<div class="paragraph">
+<p>The resulting vector is the gradient of \(f\) :</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\nabla f = (2, 4, 2, 2, 2)\]
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_study_case_a_simple_feed_forward_neural_network">Study case : a simple feed forward neural network</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here&#8217;s a simple Feed-Forward Neural Network :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/articles/backpropagation-automatic-differentiation/simple_ffnn.png" alt="Simple Feed-Forward Neural Network" width="1024" height="603">
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\mathbf{h}_{[i]} = activation(\sum_{edge=0}^{n\_in} Weight\_h_{[i][edge]} \cdot \mathbf{in}_{[i]})\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\mathbf{out}_{[i]} = activation(\sum_{edge=0}^{n\_h} Weight\_out_{[i][edge]} \cdot \mathbf{in}_{[i]})\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\mathbf{out} = activation(activation(\mathbf{in} \cdot Weight\_h) \cdot Weight\_out)\]
+</div>
+</div>
+</div>
+</div>

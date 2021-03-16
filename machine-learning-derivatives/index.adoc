@@ -1,0 +1,313 @@
+:stem: latexmath
+= Derivatives of Machine Learning related functions
+
+Derivatives are frequently used in machine learning because it allows us to efficiently train a neural network. An analogy would be finding which direction you should take to reach the highest mountain but with the restriction of only being able to see one meter away.
+In this article, we will first recall the rules of derivatives and partial derivatives. Then we will feature a few derivatives of functions that are commonly used in machine learning.
+
+== The derivatives rules
+
+=== The basics
+
+Let's start by the derivatives of common functions. In the following :
+
+* latexmath:[a] is a constant
+* latexmath:[x] is the variable by which we derive the functions
+* latexmath:[f] and latexmath:[g] are functions
+* Also note that latexmath:[\frac{\partial{f}}{\partial{x}}] is equivalent to latexmath:[f'(x)]
+
+[cols="1,1"]
+|===
+|Function latexmath:[f(x) =]  |Derivative latexmath:[f'(x) =]
+
+|latexmath:[a]
+|latexmath:[0]
+
+|latexmath:[x]
+|latexmath:[1]
+
+|latexmath:[a \cdot x]
+|latexmath:[x]
+
+|latexmath:[x^2]
+|latexmath:[2x]
+
+|latexmath:[\sqrt{x}]
+|latexmath:[\frac{1}{2} \cdot x^{-\frac{1}{2}}]
+
+|latexmath:[x^a]
+|latexmath:[a \cdot x^{a - 1}]
+
+|latexmath:[e^x]
+|latexmath:[e^x]
+
+|latexmath:[a^x]
+|latexmath:[ln(a) \cdot a^x]
+
+|latexmath:[ln(x)]
+|latexmath:[\frac{1}{x}]
+
+|latexmath:[sin(x)]
+|latexmath:[cos(x)]
+
+|latexmath:[cos(x)]
+|latexmath:[-sin(x)]
+|===
+
+Here are a few derivative rules that we will use in the following sections.
+
+[cols="1,1,1"]
+|===
+|Rule |Function |Derivative
+
+|Multiplication by a constant
+|latexmath:[a \cdot f]
+|latexmath:[a \cdot f']
+
+|Sum
+|latexmath:[f + g]
+|latexmath:[f' + g']
+
+|Difference
+|latexmath:[f - g]
+|latexmath:[f' - g']
+
+|Product
+|latexmath:[f \cdot g]
+|latexmath:[f \cdot g' + f' \cdot g]
+
+|Quotient
+|latexmath:[\left( \frac{f}{g}\right)']
+|latexmath:[\frac{f'g - fg'}{g^2}]
+
+|Reciprocal (from quotient)
+|latexmath:[\left( \frac{1}{g}\right)']
+|latexmath:[-\frac{0 \cdot g - 1 \cdot g'}{g^2} = -\frac{g'}{g^2}]
+|===
+
+
+=== The chain rule
+
+[latexmath]
+++++
+(f \circ g)' = (f' \circ g) \cdot g'
+++++
+
+latexmath:[f \circ g] means latexmath:[f(g(x))]. We can also rewrite it using Leibniz's notation :
+
+[latexmath]
+++++
+\frac{\partial f}{\partial x} = \frac{\partial f}{\partial g} \cdot \frac{\partial g}{\partial x}
+++++
+
+Which literally says : the derivative latexmath:[f'] by latexmath:[x] is the derivative latexmath:[f'] by (latexmath:[\circ]) latexmath:[g] multiplied by the derivative latexmath:[g'].
+
+
+=== Partial derivatives and gradient
+
+Let's define a function :
+
+[latexmath]
+++++
+f(x, y) = x^2 - 3y
+++++
+
+How can we calculate the derivative of this function ?
+
+When a functions takes more than one variable as an argument, we can calculate the derivative of the function with respect to each variable. When we do that, *the variables are treated as constants* :
+
+[latexmath]
+++++
+\frac{\partial f}{\partial x} =
+\frac{\partial (x^2 - 3 \cdot a)}{\partial x} =
+2x - 0 =
+2x
+++++
+
+[latexmath]
+++++
+\frac{\partial f}{\partial y} =
+\frac{\partial (a^2 - 3 y)}{\partial x} =
+0 - 3 =
+-3
+++++
+
+We define the gradient of a function as the vector of all its parial derivatives, in this case the gradient latexmath:[\nabla f] of the function latexmath:[f] is :
+
+[latexmath]
+++++
+\nabla f = (2x, -3)
+++++
+
+More generally, for a function latexmath:[f] that takes a vector latexmath:[\mathbf{v} = (x_1, ..., x_n)] as an argument, its gradient is defined by latexmath:[\nabla f(\mathbf{v}) = (\frac{\partial f}{dx_1}, ..., \frac{\partial f}{dx_n})].
+
+== The sigmoid
+
+A sigmoid is a "S"-shaped curve. The one we use is called the logistic function and it is defined like this :
+
+[latexmath]
+++++
+sigmoid(x) = f(x) = \frac{1}{1 + e^{-x}}
+++++
+
+Here is a graph of what it looks like, along with its derivative :
+
+[gnuplot, sigmoid, png, title=The sigmoid function and its derivative, align="center"]
+....
+set tics font "Helvetica,12"
+set tics scale 2
+
+set zeroaxis linewidth 1 linetype 1
+set xrange [-8:8]
+set xtics axis
+
+set yrange [0:1]
+set ytics axis left offset 2,1 0,0.25,1
+
+set border 1
+set grid
+
+set key top left
+set key font "Helvetica,16"
+set key spacing 1.75
+
+set tmargin 2
+set bmargin 3
+
+sigmoid(x) = exp(x)/(1 + exp(x))
+derivative(x) = sigmoid(x) * (1 - sigmoid(x))
+
+plot sigmoid(x) with line linetype rgbcolor "#ff7f2a" linewidth 3, derivative(x) with line linetype rgbcolor "#aad400" linewidth 3
+....
+
+Let's compute its derivative :
+
+[latexmath]
+++++
+f(x) = \frac{1}{1 + e^{-x}}
+++++
+
+[latexmath]
+++++
+f'(x) = -\frac{1}{(1 + e^{-x})^2} \cdot \frac{\partial (1 + e^{-x})}{\partial x}
+++++
+
+After using the reciprocal rule. Now we first calculate the right part using again the reciprocal rule :
+
+[latexmath]
+++++
+\frac{\partial (1 + e^{-x})}{\partial x} =
+\frac{\partial (\frac{1}{e^{x}})}{\partial x} =
+-\frac{e^x}{(e^x)^2} =
+-\frac{1}{e^x} =
+-e^{-x}
+++++
+
+So we have :
+
+[latexmath]
+++++
+f'(x) =
+-\frac{1}{(1 + e^{-x})^2} \cdot (-e^{-x}) =
+\frac{1}{(1 + e^{-x})^2} \cdot e^{-x} =
+\frac{1}{1 + e^{-x}} \cdot \frac{e^{-x}}{1 + e^{-x}}
+++++
+
+Now we use a little trick on the right part, adding latexmath:[1 - 1] on the top :
+
+[latexmath]
+++++
+f'(x) =
+\frac{1}{1 + e^{-x}} \cdot \left(\frac{1 + e^{-x} - 1}{1 + e^{-x}}\right) =
+\frac{1}{1 + e^{-x}} \cdot \left(\frac{1 + e^{-x}}{1 + e^{-x}} - \frac{1}{1 + e^{-x}}\right) =
+\frac{1}{1 + e^{-x}} \cdot \left(1 - \frac{1}{1 + e^{-x}}\right)
+++++
+
+You remember that latexmath:[f(x) = \frac{1}{1 + e^{-x}}] ? So we can write :
+
+[latexmath]
+++++
+f' = f \cdot (1 - f)
+++++
+
+[latexmath]
+++++
+\frac{\partial (sigmoid)}{\partial x} = sigmoid(x) \cdot (1 - sigmoid(x))
+++++
+
+== The squared error function
+
+The squared error function is defined by :
+
+[latexmath]
+++++
+squared\_error(predicted\_output) = \frac{1}{2} \cdot (true\_output - predicted\_output)^2
+++++
+
+We usually use this function for a batch of examples, which gives us the following formula where the variables are vectors :
+
+[latexmath]
+++++
+squared\_error(\mathbf{predicted\_output}) = \frac{1}{2} \cdot \sum_{i=1}^{n\_examples} (\mathbf{true\_output}_{[i]} - \mathbf{predicted\_output}_{[i]})^2
+++++
+
+And sometimes, the output of an example is itself a vector (think about an artificial neural network with multiple output units), we then have the following where the variables are matrices :
+
+[latexmath]
+++++
+squared\_error(Predicted\_output) = \frac{1}{2} \cdot \sum_{i=1}^{n\_examples} \sum_{j=1}^{n\_outputs} (True\_output_{[i][j]} - Predicted\_output_{[i][j]})^2
+++++
+
+The square of a difference is always positive, therefore the more difference there is between the true output and the predicted output, the bigger the result. The latexmath:[\frac{1}{2}] term is only used because it makes the derivative more convenient, as you we see.
+
+Now what we want is the partial derivative with respect to :
+
+* latexmath:[predicted\_output] for the first variant of the function;
+* latexmath:[\mathbf{predicted\_output}_{[specific\_example\]}] for the second variant;
+* latexmath:[Predicted\_output_{[specific\_example\][specific\_output\]}] for the third variant.
+
+When we calculate a partial derivative, all the other variables are treated as a constant. This means that in the case of the third variant, each latexmath:[(True\_output_{[i\][j\]} - Predicted\_output_{[i\][j\]})^2] that are not of indexes latexmath:[[specific\_example\][specific\_output\]] will have a derivative equal to latexmath:[0].
+
+Therefore we can get rid of the sums for the calculations of the partial derivatives of latexmath:[squared\_error], which means we only have to consider the first variant.
+
+We will name the specific variable we derive the function for latexmath:[x], and the corresponding true output latexmath:[a].
+
+Now let's start :
+
+[latexmath]
+++++
+f(x) = \frac{1}{2} \cdot (a - x)^2
+++++
+
+[latexmath]
+++++
+f'(x) = \frac{1}{2} \cdot 2 \cdot (a - x) \cdot (-1)
+++++
+
+After using the chain rule. Now let's simplify the result :
+
+[latexmath]
+++++
+f'(x) = x - a
+++++
+
+[latexmath]
+++++
+\frac{\partial (squared\_error)}{\partial predicted\_output} = predicted\_output - true\_output
+++++
+
+Or for the second variant :
+[latexmath]
+++++
+\frac{\partial (squared\_error)}{\partial \mathbf{predicted\_output}_{[specific\_example]}} = \mathbf{predicted\_output}_{[specific\_example]} - \mathbf{true\_output}_{[specific\_example]}
+++++
+
+And for the third variant :
+
+[latexmath]
+++++
+\frac{\partial (squared\_error)}{\partial Predicted\_output_{[specific\_example][specific\_output]}} =
+++++
+[latexmath]
+++++
+Predicted\_output_{[specific\_example][specific\_output]} - True\_output_{[specific\_example][specific\_output]}
+++++

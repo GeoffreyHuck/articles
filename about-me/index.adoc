@@ -1,0 +1,20 @@
+= About Me
+
+image::geoffreyhuck.JPG[Geoffrey Huck, 150, 150, role="left"]
+
+My passion for computers started the very moment I put my hands on one. I was 10 and I still remember the wonder I felt when I entered the Internet. And from there, discovering C programming, the Hacker community and algorithms.
+
+In high school, I represented France in the https://ioinformatics.org/page/ioi-2007/33[
+International Olympiad in Informatics (IOI),window=_blank] in 2007. I also had several years of participation as a finalist in the nation-wide french contest https://prologin.org[Prologin,window=_blank].
+
+In 2012, I launched my freelance web development services.
+
+Then I founded my current company GEOT in 2015, which develops tools for businesses and organizations.
+
+I explored the world as a digital nomad in 2018-2019, in what was considered the pre-corona era, and appreciated being able to see the world from different cultural perspectives.
+
+For a glimpse of my work, do visit the open-source tool https://github.com/France-ioi/codecast[Codecast,window=_blank] that allows the recording and playing of interactive coding sessions of Python on your browser.
+
+I have also released the code as well as the content of this blog https://github.com/GeoffreyHuck/blog[on Github,window=_blank]. It allows me to easily write and share mathematical content.
+
+Today, I happily live in France with my family, deepening my knowledge and understanding of life and (computer) sciences.

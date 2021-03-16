@@ -1,0 +1,457 @@
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The best way to learn about ideas is to learn how those ideas emerged in the first place. So where do neural networks come from ? To answer this question, out journey will start by defining a simple linear model. From there on, by refining the idea and adding complexity to it, we will get what we call a feed-forward neural network. Understanding how it works with all the math behind their functioning will enable us to understand more complex types of networks later.</p>
+</div>
+<div class="paragraph">
+<p>I will show the mathematical details of our operations in a way that I hope is understandable to people who stopped doing math in high school. After reading it, you will have a grasp of matrices operations, how and why it applies to neural networks.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_building_a_simple_neural_network">Building a simple neural network</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let&#8217;s say we want to build a model that predicts people&#8217;s <strong>salary</strong> given only their <strong>age</strong> and <strong>height</strong>.</p>
+</div>
+<div class="paragraph">
+<p>We want this model to be extra simple, so we&#8217;ll restrict the possibilities to a linear combination of the inputs, namely <strong>age</strong> and <strong>height</strong>. You probably remember that the formula of a line is <span class="image"><img src="feed-forward-neural-network/stem-2b3b2222209509dce25080749584e6d8.png" alt="stem 2b3b2222209509dce25080749584e6d8" width="113" height="16"></span> ? Our model&#8217;s formula will look like this :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-a63456420ad85431ea29ba9645802558.png" alt="$$salary(\color{blue}{age}, \color{green}{height}) = \color{blue}{coefficient_{age}} \cdot \color{blue}{age} + \color{green}{coefficient_{height}} \cdot \color{green}{height}\color{black} + bias$$" width="597" height="18">
+</div>
+</div>
+<div class="paragraph">
+<p>The <span class="image"><img src="feed-forward-neural-network/stem-912f7a9171c37be275b43cd962567017.png" alt="stem 912f7a9171c37be275b43cd962567017" width="33" height="12"></span> term has the same function as the <span class="image"><img src="feed-forward-neural-network/stem-4bdc8d9bcfb35e1c9bfb51fc69687dfc.png" alt="stem 4bdc8d9bcfb35e1c9bfb51fc69687dfc" width="9" height="12"></span> term present in the equation of a line.</p>
+</div>
+<div class="paragraph">
+<p>Our whole model will be determined by, and only by the following parameters :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-5fe54810859c3a0a9a111b0552b3a705.png" alt="$$(\color{blue}{coefficient_{age}}, \color{green}{coefficient_{height}}\color{black}, bias)$$" width="315" height="18">
+</div>
+</div>
+<div class="paragraph">
+<p>We say that our model has <strong>three parameters</strong>. Those will respectively represent :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="image"><img src="feed-forward-neural-network/stem-5f845d4a3e1b95eb2929b8b3a1120625.png" alt="stem 5f845d4a3e1b95eb2929b8b3a1120625" width="117" height="16"></span> : How the <strong>age</strong> contributes to the <strong>salary</strong></p>
+</li>
+<li>
+<p><span class="image"><img src="feed-forward-neural-network/stem-fed17bc5a7721f78f921ece3b8bf643f.png" alt="stem fed17bc5a7721f78f921ece3b8bf643f" width="133" height="17"></span> : How the <strong>height</strong> contributes to the <strong>salary</strong></p>
+</li>
+<li>
+<p><span class="image"><img src="feed-forward-neural-network/stem-912f7a9171c37be275b43cd962567017.png" alt="stem 912f7a9171c37be275b43cd962567017" width="33" height="12"></span> : How all of this is adjusted. Think of what have to be the result of <span class="image"><img src="feed-forward-neural-network/stem-53c78bbbee9a014f39bdb278be24c0b9.png" alt="stem 53c78bbbee9a014f39bdb278be24c0b9" width="92" height="16"></span> for our model to be a good approximation of reality</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Here is a graphic representing what such model looks like. The parameters here are <span class="image"><img src="feed-forward-neural-network/stem-f1a2c80ddb17937dc1bf0fa85df83572.png" alt="stem f1a2c80ddb17937dc1bf0fa85df83572" width="96" height="16"></span> :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/sigmoid.png" alt="sigmoid" width="640" height="480">
+</div>
+<div class="title">Figure 1. A visual example for salary = age * 1.5 + height * 1.1 + 50</div>
+</div>
+<div class="paragraph">
+<p>At this point you might wonder.</p>
+</div>
+<div class="paragraph">
+<p>Ok sure that&#8217;s great but how does this relate to a neural network ? Those are supposed to be difficult and this looks way too easy.</p>
+</div>
+<div class="paragraph">
+<p>In fact what we defined can already be modelized by a very simple neural network consisting of two input nodes, <strong>age</strong> and <strong>height</strong>, and one output node, the predicted <strong>salary</strong>. Here&#8217;s a visual representation of it :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/simple_ffnn.png" alt="Simple Feed-Forward Neural Network" width="415" height="331">
+</div>
+<div class="title">Figure 2. A very simple Feed-Forward Neural Network</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>The input layer is what you feed into the neural network</strong>, it could be an image, a book, a song, data from a company&#8217;s sales department, etc.</p>
+</li>
+<li>
+<p><strong>The output layer is what the neural network predicts</strong>. It could be a sum of money, the probabilities that an image contains a car or a tree, the probability that a piece of music is rock or pop music, etc.</p>
+</li>
+<li>
+<p><strong>The bias is modelized like any other parameter but with a value of <span class="image"><img src="feed-forward-neural-network/stem-034d0a6be0424bffe9a6e7ac9236c0f5.png" alt="stem 034d0a6be0424bffe9a6e7ac9236c0f5" width="7" height="10"></span>.</strong></p>
+</li>
+<li>
+<p><strong>The parameters are called weights.</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In the image above, the interesting things that are actually happening are hidden, let&#8217;s see it in details :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/ffnn-unit.png" alt="ffnn unit">
+</div>
+<div class="title">Figure 3. The inside of a Feed-Forward Neural Network</div>
+</div>
+<div class="paragraph">
+<p>We will discuss about the <span class="image"><img src="feed-forward-neural-network/stem-c2f42e565977da428162d2fcff949621.png" alt="stem c2f42e565977da428162d2fcff949621" width="82" height="12"></span> function in a later article. For now we will take <span class="image"><img src="feed-forward-neural-network/stem-75bc06fd7c00a77b4071eedee1544865.png" alt="stem 75bc06fd7c00a77b4071eedee1544865" width="133" height="16"></span>, which means we can just ignore it. So what we get as output is :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-ca087603ce64ea812aeba6a0a2ca80dc.png" alt="$$out_{\color{red}{1}} = salary(\color{blue}{age}, \color{green}{height}\color{black})$$" width="207" height="16">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-c2aea38793dc4ef18a3df10ae6824058.png" alt="$$out_{\color{red}{1}} = activation(\color{red}{\sum_{i = 0}^{n\_in}}\color{black}(in_{\color{red}{i}}\color{black} \cdot weight_{\color{red}{i}}\color{black}))$$" width="278" height="48">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-9b0893f8feac703f2b50d9ebf4265ab8.png" alt="$$out_{\color{red}{1}} = \color{red}{\sum_{i = 0}^{n\_in}}\color{black}(in_{\color{red}{i}} \cdot weight_{\color{red}{i}})$$" width="185" height="48">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-bb0218d8f8f0907950112abeec8e1e3d.png" alt="$$out_{\color{red}{1}} = 1 \cdot bias + \color{blue}{age \cdot coefficient_{age}} + \color{green}{height \cdot coefficient_{height}}$$" width="499" height="17">
+</div>
+</div>
+<div class="paragraph">
+<p>Remember the formula we started with ?</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-584eb30be1650eca49d9ba26ff052498.png" alt="$$salary(\color{blue}{age}, \color{green}{height}) = \color{blue}{coefficient_{age} \cdot age} + \color{green}{coefficient_{height} \cdot height}\color{black} + bias$$" width="597" height="18">
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s exactly the same ! The important things you should remember here is that :</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+The weights are the parameters of the network.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>And :</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+The output of the model is called the prediction.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_a_slighly_more_complex_example">A slighly more complex example</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is the neural network we will focus on in this section :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/ffnn.png" alt="A Feed-Forward Neural Network with two hidden layer" width="1009" height="648">
+</div>
+<div class="title">Figure 4. A Feed-Forward Neural Network with two hidden layer</div>
+</div>
+<div class="paragraph">
+<p>We first focus on <span class="image"><img src="feed-forward-neural-network/stem-ddef04752ddd32453e91bb8c0cd9f307.png" alt="stem ddef04752ddd32453e91bb8c0cd9f307" width="31" height="13"></span> only, how do we calculate it ? We&#8217;ll start from the right, using the formula from the previous section. For now we will keep <span class="image"><img src="feed-forward-neural-network/stem-75bc06fd7c00a77b4071eedee1544865.png" alt="stem 75bc06fd7c00a77b4071eedee1544865" width="133" height="16"></span> and see what happens :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-cde374bd2131d3490003ad8a1908338f.png" alt="$$out_{\color{red}{1}} = activation(\color{red}{\sum_{i = 0}^{n\_in}}\color{black}(in_{\color{red}{i}} \cdot weight_{\color{red}{i}})) = \color{red}{\sum_{i = 0}^{n\_in}}\color{black}(in_{\color{red}{i}} \cdot weight_{\color{red}{i}})$$" width="432" height="48">
+</div>
+</div>
+<div class="paragraph">
+<p>Since we have more than one column and more than one unit per layer, we will refer to the weights by using the indexes <span class="image"><img src="feed-forward-neural-network/stem-9d2131d63aab7589555ce646d1b0114c.png" alt="stem 9d2131d63aab7589555ce646d1b0114c" width="328" height="18"></span>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="image"><img src="feed-forward-neural-network/stem-27bbcb9f27b7a804270563dd96d06816.png" alt="stem 27bbcb9f27b7a804270563dd96d06816" width="99" height="14"></span> will be 0 for the weights associated to the arrows going from the input layer, 1 for the weights associated to the arrows going from the first hidden layer, and 2 for those going from the second hidden layer.</p>
+</li>
+<li>
+<p><span class="image"><img src="feed-forward-neural-network/stem-aafc083765fe22a66f04ac64eca4730a.png" alt="stem aafc083765fe22a66f04ac64eca4730a" width="112" height="14"></span> Is the index of the unit within its own layer, at which the arrow points to. Note that for the output layer, we will start with the index <span class="image"><img src="feed-forward-neural-network/stem-034d0a6be0424bffe9a6e7ac9236c0f5.png" alt="stem 034d0a6be0424bffe9a6e7ac9236c0f5" width="7" height="10"></span> instead of <span class="image"><img src="feed-forward-neural-network/stem-29632a9bf827ce0200454dd32fc3be82.png" alt="stem 29632a9bf827ce0200454dd32fc3be82" width="9" height="12"></span>.</p>
+</li>
+<li>
+<p><span class="image"><img src="feed-forward-neural-network/stem-fa84237ee3f330b78f22ff79667447bd.png" alt="stem fa84237ee3f330b78f22ff79667447bd" width="139" height="14"></span> Is the index of the unit within its own layer, from which the arrow starts. The bias is index 0, and then it goes from top to bottom.</p>
+</li>
+</ul>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-9f320b696bb6385bfa4253d8078abbfc.png" alt="$$out_{\color{red}{1}} = \color{red}{\sum_{j = 0}^{5}}\color{black}(h_{\color{blue}{2},\color{green}{j}} \cdot weight_{\color{blue}{2},\color{green}{1},\color{red}{j}})$$" width="233" height="49">
+</div>
+</div>
+<div class="paragraph">
+<p>We can simplify this expression mathematically if instead of considering each unit <span class="image"><img src="feed-forward-neural-network/stem-0712872e29d6d340cb8a1d1b690739a8.png" alt="stem 0712872e29d6d340cb8a1d1b690739a8" width="30" height="17"></span> and <span class="image"><img src="feed-forward-neural-network/stem-2c4645c7074641c73fd6c65db86be6bb.png" alt="stem 2c4645c7074641c73fd6c65db86be6bb" width="91" height="17"></span>, we consider the vectors :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-6690f39aa4257fd18797638825434c26.png" alt="$$\mathbf{h}_\color{blue}{2} = (h_{\color{blue}{2},\color{green}{0}}, h_{\color{blue}{2},\color{green}{1}}, h_{\color{blue}{2},\color{green}{2}}, h_{\color{blue}{2},\color{green}{3}}, h_{\color{blue}{2},\color{green}{4}}, h_{\color{blue}{2},\color{green}{5}})]$$" width="251" height="21">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-1b2e1485a141dd355c03d718062b7cc1.png" alt="$$\mathbf{weight}_{\color{blue}{2},\color{red}{1}} = (weight_{\color{blue}{2},\color{green}{1},\color{red}{0}}, weight_{\color{blue}{2},\color{green}{1},\color{red}{1}}, weight_{\color{blue}{2},\color{green}{1},\color{red}{2}}, weight_{\color{blue}{2},\color{green}{1},\color{red}{3}}, weight_{\color{blue}{2},\color{green}{1},\color{red}{4}}, weight_{\color{blue}{2},\color{green}{1},\color{red}{5}})]$$" width="715" height="17">
+</div>
+</div>
+<div class="paragraph">
+<p>Note that when we are talking about a vector of weights, we will use the indexes <span class="image"><img src="feed-forward-neural-network/stem-978ef6922ca255fe6d091bc0389b53ff.png" alt="stem 978ef6922ca255fe6d091bc0389b53ff" width="224" height="17"></span>.</p>
+</div>
+<div class="paragraph">
+<p>We can rewrite the expression as :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-a1760a2156ff15898c292aaa2c9beece.png" alt="$$out_{\color{red}{1}} = \mathbf{h}_{\color{blue}{2}} \cdot \mathbf{weight}_{2,1}^T$$" width="168" height="20">
+</div>
+</div>
+<div class="paragraph">
+<p>What is this <span class="image"><img src="feed-forward-neural-network/stem-0103700fa3db36d24bf7a94ad80ae6a5.png" alt="stem 0103700fa3db36d24bf7a94ad80ae6a5" width="36" height="8"></span> ? It is because we want the transpose of the vector <span class="image"><img src="feed-forward-neural-network/stem-324b19458843af29c0bce64b0c4e34a8.png" alt="stem 324b19458843af29c0bce64b0c4e34a8" width="85" height="16"></span>. The transpose of a row vector makes it a column vector. This will allow us to use the matrix multiplication rule in order to calculate <span class="image"><img src="feed-forward-neural-network/stem-ddef04752ddd32453e91bb8c0cd9f307.png" alt="stem ddef04752ddd32453e91bb8c0cd9f307" width="31" height="13"></span> :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-499966c4ef61137d28b2243cd7535c26.png" alt="$$out_{\color{red}{1}} = (h_{2,0}, h_{2,1}, h_{2,2}, h_{2,3}, h_{2,4}, h_{2,5}) \cdot
+\begin{pmatrix}
+weight_{2,1,0} \\
+weight_{2,1,1} \\
+weight_{2,1,2} \\
+weight_{2,1,3} \\
+weight_{2,1,4} \\
+weight_{2,1,5}
+\end{pmatrix}$$" width="336" height="105">
+</div>
+</div>
+<div class="paragraph">
+<p>Which is indeed equivalent to the previous formula we had :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-dbd36ab2f2a76ddb64d72d5bf98543d5.png" alt="$$out_{\color{red}{1}} = h_{2,0} \cdot weight_{2,1,0} + h_{2,1} \cdot weight_{2,1,1} + h_{2,2} \cdot weight_{2,1,2} + h_{2,3} \cdot weight_{2,1,3} + h_{2,4} \cdot weight_{2,1,4} + h_{2,5} \cdot weight_{2,1,5}$$" width="952" height="16">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-7cdbc3327f141c55e21d1506e220479a.png" alt="$$out_{\color{red}{1}} = \sum_{j = 0}^{5}(h_{2,j} \cdot weight_{2,j})$$" width="216" height="49">
+</div>
+</div>
+<div class="paragraph">
+<p>We can easily calculate <span class="image"><img src="feed-forward-neural-network/stem-c74ad31ad38caa9d69de7c80bae14ba0.png" alt="stem c74ad31ad38caa9d69de7c80bae14ba0" width="85" height="20"></span> because <span class="image"><img src="feed-forward-neural-network/stem-324b19458843af29c0bce64b0c4e34a8.png" alt="stem 324b19458843af29c0bce64b0c4e34a8" width="85" height="16"></span> is made of the neural network&#8217;s parameters and we know them by definition when we use the neural network. If we want to make this expression useful, we need to calculate <span class="image"><img src="feed-forward-neural-network/stem-553ac4b9b47f5939eea92568a8f8762b.png" alt="stem 553ac4b9b47f5939eea92568a8f8762b" width="18" height="14"></span>. It is quite easy to do so :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-9560be1dd9935e1f196b90667672962f.png" alt="$$\mathbf{h}_{\color{blue}{2}} = (h_{2,0}, h_{2,1}, h_{2,2}, h_{2,3}, h_{2,4}, h_{2,5})$$" width="285" height="17">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-79f968dfc81fd567a77572ef5423657c.png" alt="$$h_{2,0} = \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,0}^T$$" width="166" height="20">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-be0a7152778ee20b23aa9ed74a9ac85c.png" alt="$$h_{2,1} = \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,1}^T$$" width="164" height="20">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-07624a3bfa7ae5d0f69e437071efbdce.png" alt="$$h_{2,2} = \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,2}^T$$" width="166" height="20">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-413862eefa0ee4ea05ccf06663b2e963.png" alt="$$h_{2,3} = \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,3}^T$$" width="166" height="20">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-29482bbfbe19a52803ec47e13a24baaf.png" alt="$$h_{2,4} = \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,4}^T$$" width="168" height="20">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-9a85e4291f757708c6cdda8332e524f1.png" alt="$$h_{2,5} = \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,5}^T$$" width="166" height="20">
+</div>
+</div>
+<div class="paragraph">
+<p>The vector <span class="image"><img src="feed-forward-neural-network/stem-e8d187eb34b1bc2c34f809688aac0acb.png" alt="stem e8d187eb34b1bc2c34f809688aac0acb" width="82" height="16"></span> that we use is different for each <span class="image"><img src="feed-forward-neural-network/stem-b05862afd9b8c924f6ba30e0fce94c88.png" alt="stem b05862afd9b8c924f6ba30e0fce94c88" width="30" height="16"></span> because the arrows going to each unit are all different.</p>
+</div>
+<div class="paragraph">
+<p>Once again we can mathematically simplify this expression if instead of considering each vectors separately, we consider the matrix :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-c8efcad3059571540f4f636443f84970.png" alt="$$Weight_1 =
+\begin{pmatrix}
+\mathbf{weight}_{1,0} \\
+\mathbf{weight}_{1,1} \\
+\mathbf{weight}_{1,2} \\
+\mathbf{weight}_{1,3} \\
+\mathbf{weight}_{1,4} \\
+\mathbf{weight}_{1,5}
+\end{pmatrix} =
+\begin{pmatrix}
+weight_{1,0,0}, weight_{1,0,1}, weight_{1,0,2}, weight_{1,0,3}, weight_{1,0,4}, weight_{1,0,5} \\
+weight_{1,0,1}, weight_{1,1,1}, weight_{1,1,2}, weight_{1,1,3}, weight_{1,1,4}, weight_{1,1,5} \\
+weight_{1,0,2}, weight_{1,2,1}, weight_{1,2,2}, weight_{1,2,3}, weight_{1,2,4}, weight_{1,2,5} \\
+weight_{1,0,3}, weight_{1,3,1}, weight_{1,3,2}, weight_{1,3,3}, weight_{1,3,4}, weight_{1,3,5} \\
+weight_{1,0,4}, weight_{1,4,1}, weight_{1,4,2}, weight_{1,4,3}, weight_{1,4,4}, weight_{1,4,5} \\
+weight_{1,0,5}, weight_{1,5,1}, weight_{1,5,2}, weight_{1,5,3}, weight_{1,5,4}, weight_{1,5,5}
+\end{pmatrix}$$" width="663" height="105">
+</div>
+</div>
+<div class="paragraph">
+<p>We can then rewrite the expression as :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-c0dd221578b3a10ab065d240a4b53279.png" alt="$$\mathbf{h}_{\color{blue}{2}}  = \mathbf{h}_{\color{blue}{1}} \cdot Weight_1^T$$" width="137" height="18">
+</div>
+</div>
+<div class="paragraph">
+<p>Note that we use the transpose for the same reason as before. This is how to transpose a matrix :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-4a9561ceea196044757f649d3add32c5.png" alt="$$\begin{pmatrix}
+\color{red} {11, 12, 13, 14, 15} \\
+\color{green} {21, 22, 23, 24, 25} \\
+\color{blue} {31, 32, 33, 34, 35}
+\end{pmatrix}^T
+=
+\begin{pmatrix}
+\color{red} {11}, \color{green} {21}, \color{blue} {31} \\
+\color{red} {12}, \color{green} {22}, \color{blue} {32} \\
+\color{red} {13}, \color{green} {23}, \color{blue} {33} \\
+\color{red} {14}, \color{green} {24}, \color{blue} {34} \\
+\color{red} {15}, \color{green} {25}, \color{blue} {35}
+\end{pmatrix}$$" width="242" height="76">
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s apply the rules of matrix multiplication to be sure that we really get the same result. We start by the transpose :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-b6c9bf62386ff3ade38f32791ad7bccf.png" alt="$$\mathbf{h}_{\color{blue}{2}} = (h_{1,0}, h_{1,1}, h_{1,2}, h_{1,3}, h_{1,4}, h_{1,5}) \cdot
+\begin{pmatrix}
+weight_{1,0,0}, weight_{1,0,1}, weight_{1,0,2}, weight_{1,0,3}, weight_{1,0,4}, weight_{1,0,5} \\
+weight_{1,0,1}, weight_{1,1,1}, weight_{1,1,2}, weight_{1,1,3}, weight_{1,1,4}, weight_{1,1,5} \\
+weight_{1,0,2}, weight_{1,2,1}, weight_{1,2,2}, weight_{1,2,3}, weight_{1,2,4}, weight_{1,2,5} \\
+weight_{1,0,3}, weight_{1,3,1}, weight_{1,3,2}, weight_{1,3,3}, weight_{1,3,4}, weight_{1,3,5} \\
+weight_{1,0,4}, weight_{1,4,1}, weight_{1,4,2}, weight_{1,4,3}, weight_{1,4,4}, weight_{1,4,5} \\
+weight_{1,0,5}, weight_{1,5,1}, weight_{1,5,2}, weight_{1,5,3}, weight_{1,5,4}, weight_{1,5,5}
+\end{pmatrix}^T$$" width="720" height="108">
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-0d73edc1c4f70742110e57b9193f9c87.png" alt="$$\mathbf{h}_{\color{blue}{2}} = (h_{1,0}, h_{1,1}, h_{1,2}, h_{1,3}, h_{1,4}, h_{1,5}) \cdot
+\begin{pmatrix}
+weight_{1,0,0}, weight_{1,1,0}, weight_{1,2,0}, weight_{1,3,0}, weight_{1,4,0}, weight_{1,5,0} \\
+weight_{1,0,1}, weight_{1,1,1}, weight_{1,2,1}, weight_{1,3,1}, weight_{1,4,1}, weight_{1,5,1} \\
+weight_{1,0,2}, weight_{1,1,2}, weight_{1,2,2}, weight_{1,3,2}, weight_{1,4,2}, weight_{1,5,2} \\
+weight_{1,0,3}, weight_{1,1,3}, weight_{1,2,3}, weight_{1,3,3}, weight_{1,4,3}, weight_{1,5,3} \\
+weight_{1,0,4}, weight_{1,1,4}, weight_{1,2,4}, weight_{1,3,4}, weight_{1,4,4}, weight_{1,5,4} \\
+weight_{1,0,5}, weight_{1,1,5}, weight_{1,2,5}, weight_{1,3,5}, weight_{1,4,5}, weight_{1,5,5}
+\end{pmatrix}$$" width="713" height="105">
+</div>
+</div>
+<div class="paragraph">
+<p>The following expression is actually a vector of the form <span class="image"><img src="feed-forward-neural-network/stem-ed4809965d58597ce346829896f55b0f.png" alt="stem ed4809965d58597ce346829896f55b0f" width="120" height="16"></span>. I write it as rows for it is easier to read.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-fc85e310b2afbab1eae0ae39585626aa.png" alt="$$\mathbf{h}_{\color{blue}{2}} =
+\begin{pmatrix}
+h_{1,0} \cdot weight_{1,0,0} + h_{1,1} \cdot weight_{1,0,1} + h_{1,2} \cdot weight_{1,0,2} + h_{1,3} \cdot weight_{1,0,3} + h_{1,4} \cdot weight_{1,0,4} + h_{1,5} \cdot weight_{1,0,5} \\
+h_{1,0} \cdot weight_{1,1,0} + h_{1,1} \cdot weight_{1,1,1} + h_{1,2} \cdot weight_{1,1,2} + h_{1,3} \cdot weight_{1,1,3} + h_{1,4} \cdot weight_{1,1,4} + h_{1,5} \cdot weight_{1,1,5} \\
+h_{1,0} \cdot weight_{1,2,0} + h_{1,1} \cdot weight_{1,2,1} + h_{1,2} \cdot weight_{1,2,2} + h_{1,3} \cdot weight_{1,2,3} + h_{1,4} \cdot weight_{1,2,4} + h_{1,5} \cdot weight_{1,2,5} \\
+h_{1,0} \cdot weight_{1,3,0} + h_{1,1} \cdot weight_{1,3,1} + h_{1,2} \cdot weight_{1,3,2} + h_{1,3} \cdot weight_{1,3,3} + h_{1,4} \cdot weight_{1,3,4} + h_{1,5} \cdot weight_{1,3,5} \\
+h_{1,0} \cdot weight_{1,4,0} + h_{1,1} \cdot weight_{1,4,1} + h_{1,2} \cdot weight_{1,4,2} + h_{1,3} \cdot weight_{1,4,3} + h_{1,4} \cdot weight_{1,4,4} + h_{1,5} \cdot weight_{1,4,5} \\
+h_{1,0} \cdot weight_{1,5,0} + h_{1,1} \cdot weight_{1,5,1} + h_{1,2} \cdot weight_{1,5,2} + h_{1,3} \cdot weight_{1,5,3} + h_{1,4} \cdot weight_{1,5,4} + h_{1,5} \cdot weight_{1,5,5}
+\end{pmatrix}$$" width="748" height="105">
+</div>
+</div>
+<div class="paragraph">
+<p>If we take the same expression as when we calculated <span class="image"><img src="feed-forward-neural-network/stem-ddef04752ddd32453e91bb8c0cd9f307.png" alt="stem ddef04752ddd32453e91bb8c0cd9f307" width="31" height="13"></span> we obtain :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-78a62e359e377faef235315ba648f51e.png" alt="$$\mathbf{h}_{\color{blue}{2}} = (\mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,0}^T, \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,1}^T, \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,2}^T, \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,3}^T, \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,4}^T, \mathbf{h}_{\color{blue}{1}} \cdot \mathbf{weight}_{1,5}^T)$$" width="790" height="20">
+</div>
+</div>
+<div class="paragraph">
+<p>Which is indeed equal to the expression we had earlier !</p>
+</div>
+<div class="paragraph">
+<p>Now the last step, we want to calculate <span class="image"><img src="feed-forward-neural-network/stem-58261a7b2bbee8380e5cafe8900e66c0.png" alt="stem 58261a7b2bbee8380e5cafe8900e66c0" width="14" height="14"></span> in function of the inputs. This time it&#8217;s simple, we just have to use the same technique as we did to calculate <span class="image"><img src="feed-forward-neural-network/stem-c15b4dd1f04595ac2da41dbcbefb9df2.png" alt="stem c15b4dd1f04595ac2da41dbcbefb9df2" width="16" height="14"></span> :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-08321d72cabe7dd5a223e2032358e464.png" alt="$$\mathbf{h}_{\color{blue}{1}}  = \mathbf{in} \cdot Weight_0^T$$" width="137" height="18">
+</div>
+</div>
+<div class="paragraph">
+<p>To summarize everything that we did :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-b4629ae47780c108d6549c3633a12bde.png" alt="$$out_{\color{red}{1}} = \mathbf{h}_{\color{blue}{2}} \cdot \mathbf{weight}_{2,1}^T \
+out_{\color{red}{1}} = (\mathbf{h}_{\color{blue}{1}} \cdot Weight_1^T) \cdot \mathbf{weight}_{2,1}^T \
+out_{\color{red}{1}} = ((\mathbf{in} \cdot Weight_0^T) \cdot Weight_1^T) \cdot \mathbf{weight}_{2,1}^T$$" width="602" height="15">
+</div>
+</div>
+<div class="paragraph">
+<p>There is still one thing : we have more than one output, so instead of just calculating <span class="image"><img src="feed-forward-neural-network/stem-ddef04752ddd32453e91bb8c0cd9f307.png" alt="stem ddef04752ddd32453e91bb8c0cd9f307" width="31" height="13"></span>, we can calculate all the <span class="image"><img src="feed-forward-neural-network/stem-402aa84f37e5cf42cbbe2539eaefbf9a.png" alt="stem 402aa84f37e5cf42cbbe2539eaefbf9a" width="30" height="13"></span> of the vector <span class="image"><img src="feed-forward-neural-network/stem-12cb177289fd42a6730c1523fbf3c569.png" alt="stem 12cb177289fd42a6730c1523fbf3c569" width="31" height="10"></span> at the same time :</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="feed-forward-neural-network/stem-a35c1e6bc4e62f566a973a54ee9b1836.png" alt="$$\mathbf{out} = ((\mathbf{in} \cdot Weight_0^T) \cdot Weight_1^T) \cdot Weight_{2}^T$$" width="334" height="18">
+</div>
+</div>
+<div class="paragraph">
+<p>Do you get it ? Right, we only have to consider the matrix of weights <span class="image"><img src="feed-forward-neural-network/stem-b287dcfcd1629ede30de8018c9ba9959.png" alt="stem b287dcfcd1629ede30de8018c9ba9959" width="68" height="18"></span> instead of the vector <span class="image"><img src="feed-forward-neural-network/stem-c74ad31ad38caa9d69de7c80bae14ba0.png" alt="stem c74ad31ad38caa9d69de7c80bae14ba0" width="85" height="20"></span> !</p>
+</div>
+<div class="paragraph">
+<p><strong>This is the equation of the neural network.</strong> By filling the input <span class="image"><img src="feed-forward-neural-network/stem-aeef64a84c112007afce89a8d750276f.png" alt="stem aeef64a84c112007afce89a8d750276f" width="18" height="12"></span> into it, you can calculate the prediction <span class="image"><img src="feed-forward-neural-network/stem-12cb177289fd42a6730c1523fbf3c569.png" alt="stem 12cb177289fd42a6730c1523fbf3c569" width="31" height="10"></span>.</p>
+</div>
+<div class="paragraph">
+<p>Have you ever heard that deep learning is mainly about matrix multiplications ? Here&#8217;s why ! Not only is this representation easier to read but there exists algorithms for matrix multiplication that are more efficient than just doing all the additions and multiplications straight away.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We saw that the most basic form of neural network is actually a simple linear equation. From there, we escalated to a more complex neural network and introduced matrices along the way as a mean to not only simplify the equations but also to reduce the problem to one that is well known in computer sciences : <strong>matrix multiplications</strong>.</p>
+</div>
+<div class="paragraph">
+<p>You now know how to use a neural network to make a prediction by calculated its equation.</p>
+</div>
+<div class="paragraph">
+<p>There is still one more piece : to make the model of the neural network accurate, its parameters, the weights, have to be set accordingly. This is what be call the learning phase. I will show in the next article how we can do that efficiently by an algorithm know as backpropagation.</p>
+</div>
+</div>
+</div>
