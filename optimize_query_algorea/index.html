@@ -1,0 +1,733 @@
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>You know those crazy SQL queries. I recently had to optimize one of them for the project <a href="https://github.com/France-ioi/AlgoreaBackend" target="_blank" rel="noopener">Algorea</a>.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ll describe here the process I took to do that. Along with the mindset I use when I&#8217;m facing such challenges.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_optimize_a_complex_sql_query">Optimize a complex SQL query</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_replicate_the_query_slow_execution_time">Replicate the query slow execution time</h3>
+<div class="paragraph">
+<p>First, you need to replicate the slow execution time.
+This might mean loading a lot of data in your database.</p>
+</div>
+<div class="paragraph">
+<p>Do not proceed to the next step until you see the slow execution time.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_find_the_query">Find the query</h3>
+<div class="paragraph">
+<p>Once you have the slow execution time, you need to find what is the cause.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ll assume here that the cause is a slow SQL query. It could be coming from the code, or the network.</p>
+</div>
+<div class="paragraph">
+<p>You need to have a way to time-debug your code.</p>
+</div>
+<div class="paragraph">
+<p>In my case, we have all queries along with their execution time logged in a file.</p>
+</div>
+<div class="paragraph">
+<p>This is what I found:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>    [2023-12-12 09:23:47]  [2467.47ms] **complex query here**</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The complex query is the one I need to optimize. It takes 2.5 seconds to execute. It&#8217;s too much.</p>
+</div>
+<div class="paragraph">
+<p>The first thing I do is to copy-paste the query in a SQL editor, and run it to make sure it&#8217;s as slow as in the logs.</p>
+</div>
+<div class="imageblock center">
+<div class="content">
+<img src="optimize_query_algorea/slow_query_heidisql.PNG" alt="Slow SQL query HeidiSQL">
+</div>
+</div>
+<div class="paragraph">
+<p>I use HeidiSQL, but you can use any SQL editor you like. As can see at the bottom of the screenshot, the query takes 5 seconds to execute.</p>
+</div>
+<div class="paragraph">
+<p>We found the culprit!</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_understand_the_query">Understand the query</h3>
+<div class="paragraph">
+<p>Now that we have the query, we need to understand it.</p>
+</div>
+<div class="paragraph">
+<p>The first step is to format it. I usually use <a href="https://codebeautify.org/sqlformatter" target="_blank" rel="noopener">CodeBeautify</a> for that.</p>
+</div>
+<div class="paragraph">
+<p>I like to say that a formatted code is already half understood.</p>
+</div>
+<div class="paragraph">
+<p>This is the result:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sql hljs" data-lang="sql">WITH items_to_show AS (
+  SELECT
+    item_id AS id
+  FROM
+    permissions_generated AS permissions
+    JOIN groups_ancestors_active AS ancestors ON ancestors.child_group_id = 670968966872011405
+    AND ancestors.ancestor_group_id = permissions.group_id
+  GROUP BY
+    item_id
+  HAVING
+    (
+      MAX(can_view_generated_value) &gt;= 2
+    )
+    AND (
+      MAX(can_watch_generated_value) &gt;= 2
+    )
+    AND (
+      MAX(can_watch_generated_value) &gt;= 2
+    )
+),
+participants AS (
+  SELECT
+    child_group_id AS id
+  FROM
+    `groups_ancestors_active`
+  WHERE
+    (
+      ancestor_group_id = 917454091139548680
+    )
+),
+start_from_row AS (
+  SELECT
+    1
+  LIMIT
+    1
+), un AS (
+  SELECT
+    *
+  FROM
+    (
+      (
+        SELECT
+          limited_answers.*,
+          gradings.score
+        FROM
+          (
+            SELECT
+              STRAIGHT_JOIN
+              /* tell the optimizer we don't want to convert IN(...) into JOIN */
+              CASE answers.type WHEN 'Submission' THEN 2 WHEN 'Saved' THEN 4 WHEN 'Current' THEN 5 END AS activity_type_int,
+              answers.created_at AS at,
+              answers.id AS answer_id,
+              answers.attempt_id,
+              answers.participant_id,
+              answers.item_id,
+              author_id AS user_id
+            FROM
+              `answers`
+            WHERE
+              (
+                answers.participant_id IN (
+                  SELECT
+                    id
+                  FROM
+                    participants
+                )
+              )
+              AND (
+                answers.item_id IN (
+                  SELECT
+                    id
+                  FROM
+                    items_to_show
+                )
+              )
+              AND (answers.created_at &lt;= NOW())
+              AND (
+                answers.participant_id &lt;= (
+                  SELECT
+                    MAX(id)
+                  FROM
+                    participants
+                )
+              )
+              AND (
+                answers.participant_id &gt;= (
+                  SELECT
+                    MIN(id)
+                  FROM
+                    participants
+                )
+              )
+              AND (
+                answers.item_id &lt;= (
+                  SELECT
+                    MAX(id)
+                  FROM
+                    items_to_show
+                )
+              )
+              AND (
+                answers.item_id &gt;= (
+                  SELECT
+                    MIN(id)
+                  FROM
+                    items_to_show
+                )
+              )
+            ORDER BY
+              answers.created_at DESC,
+              answers.item_id ASC,
+              answers.participant_id ASC,
+              answers.attempt_id DESC,
+              CASE answers.type WHEN 'Submission' THEN 2 WHEN 'Saved' THEN 4 WHEN 'Current' THEN 5 END DESC,
+              answers.id ASC
+            LIMIT
+              20
+          ) AS limited_answers
+          LEFT JOIN gradings ON gradings.answer_id = limited_answers.answer_id
+      )
+      UNION ALL
+        (
+          SELECT
+            STRAIGHT_JOIN
+            /* tell the optimizer we don't want to convert IN(...) into JOIN */
+            1 AS activity_type_int,
+            started_at AS at,
+            -1 AS answer_id,
+            started_results.attempt_id,
+            started_results.participant_id,
+            started_results.item_id,
+            started_results.participant_id AS user_id,
+            NULL AS score
+          FROM
+            results AS started_results
+          WHERE
+            (
+              started_results.item_id &lt;= (
+                SELECT
+                  MAX(id)
+                FROM
+                  items_to_show
+              )
+            )
+            AND (
+              started_results.item_id &gt;= (
+                SELECT
+                  MIN(id)
+                FROM
+                  items_to_show
+              )
+            )
+            AND (
+              started_results.item_id IN (
+                SELECT
+                  id
+                FROM
+                  items_to_show
+              )
+            )
+            AND (
+              started_results.started_at &lt;= NOW()
+            )
+            AND (
+              started_results.participant_id &lt;= (
+                SELECT
+                  MAX(id)
+                FROM
+                  participants
+              )
+            )
+            AND (
+              started_results.participant_id &gt;= (
+                SELECT
+                  MIN(id)
+                FROM
+                  participants
+              )
+            )
+            AND (
+              started_results.participant_id IN (
+                SELECT
+                  id
+                FROM
+                  participants
+              )
+            )
+          ORDER BY
+            started_results.started_at DESC,
+            started_results.item_id ASC,
+            started_results.participant_id ASC,
+            started_results.attempt_id DESC
+          LIMIT
+            20
+        )
+      UNION ALL
+        (
+          SELECT
+            STRAIGHT_JOIN
+            /* tell the optimizer we don't want to convert IN(...) into JOIN */
+            3 AS activity_type_int,
+            validated_results.validated_at AS at,
+            -1 AS answer_id,
+            validated_results.attempt_id,
+            validated_results.participant_id,
+            validated_results.item_id,
+            validated_results.participant_id AS user_id,
+            NULL AS score
+          FROM
+            results AS validated_results
+          WHERE
+            (
+              validated_results.item_id IN (
+                SELECT
+                  id
+                FROM
+                  items_to_show
+              )
+            )
+            AND (
+              validated_results.validated_at &lt;= NOW()
+            )
+            AND (
+              validated_results.participant_id IN (
+                SELECT
+                  id
+                FROM
+                  participants
+              )
+            )
+          ORDER BY
+            validated_results.validated_at DESC,
+            validated_results.item_id ASC,
+            validated_results.participant_id ASC,
+            validated_results.attempt_id DESC
+          LIMIT
+            20
+        )
+    ) AS un
+)
+SELECT
+  STRAIGHT_JOIN CASE activity_type_int WHEN 1 THEN 'result_started' WHEN 2 THEN 'submission' WHEN 3 THEN 'result_validated' WHEN 4 THEN 'saved_answer' WHEN 5 THEN 'current_answer' END AS activity_type,
+  at,
+  answer_id,
+  attempt_id,
+  participant_id,
+  score,
+  items.id AS itemid,
+  items.type AS itemtype,
+  groups.id AS participant__id,
+  groups.name AS participant__name,
+  groups.type AS participant__type,
+  users.login AS user__login,
+  users.group_id AS user__id,
+  users.group_id = 670968966872011405
+  OR personal_info_view_approvals.approved AS user__show_personal_info,
+  IF(
+    users.group_id = 670968966872011405
+    OR personal_info_view_approvals.approved,
+    users.first_name,
+    NULL
+  ) AS user__first_name,
+  IF(
+    users.group_id = 670968966872011405
+    OR personal_info_view_approvals.approved,
+    users.last_name,
+    NULL
+  ) AS user__last_name,
+  IF(
+    user_strings.language_tag IS NULL,
+    default_strings.title, user_strings.title
+  ) AS itemstringtitle
+FROM
+  (
+    SELECT
+      *
+    FROM
+      `un`
+    ORDER BY
+      un.at DESC,
+      un.item_id ASC,
+      un.participant_id ASC,
+      un.attempt_id DESC,
+      un.activity_type_int DESC,
+      un.answer_id ASC
+    LIMIT
+      20
+  ) AS activities
+  JOIN items ON items.id = item_id
+  JOIN `groups` ON groups.id = participant_id
+  LEFT JOIN users ON users.group_id = user_id
+  LEFT JOIN LATERAL (
+    SELECT
+      1 AS approved
+    FROM
+      `groups_ancestors_active`
+      JOIN group_managers ON group_managers.group_id = `groups_ancestors_active`.ancestor_group_id
+      JOIN groups_ancestors_active AS group_ancestors ON group_ancestors.ancestor_group_id = group_managers.manager_id
+      AND group_ancestors.child_group_id = 670968966872011405
+      JOIN groups_groups_active ON groups_groups_active.parent_group_id = groups_ancestors_active.child_group_id
+      AND groups_groups_active.personal_info_view_approved
+    WHERE
+      (
+        groups_groups_active.child_group_id = users.group_id
+      )
+    LIMIT
+      1
+  ) AS personal_info_view_approvals ON 1
+  LEFT JOIN items_strings default_strings ON default_strings.item_id = items.id
+  AND default_strings.language_tag = items.default_language_tag
+  LEFT JOIN items_strings user_strings ON user_strings.item_id = items.id
+  AND user_strings.language_tag = 'fr' [2023 - 12 - 12 09 : 23 : 44] [744.81ms] WITH items_to_show AS (
+    SELECT
+      item_id AS id
+    FROM
+      permissions_generated AS permissions
+      JOIN groups_ancestors_active AS ancestors ON ancestors.child_group_id = 670968966872011405
+      AND ancestors.ancestor_group_id = permissions.group_id
+    GROUP BY
+      item_id
+    HAVING
+      (
+        MAX(can_view_generated_value) &gt;= 2
+      )
+      AND (
+        MAX(can_watch_generated_value) &gt;= 2
+      )
+      AND (
+        MAX(can_watch_generated_value) &gt;= 2
+      )
+  ),
+  participants AS (
+    SELECT
+      child_group_id AS id
+    FROM
+      `groups_ancestors_active`
+    WHERE
+      (
+        ancestor_group_id = 917454091139548680
+      )
+  )
+SELECT
+  COUNT(*) AS cnt
+FROM
+  answers
+WHERE
+  (
+    answers.item_id IN (
+      SELECT
+        id
+      FROM
+        items_to_show
+    )
+  )
+  AND (
+    answers.participant_id IN (
+      SELECT
+        id
+      FROM
+        participants
+    )
+  )</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now is the key moment. <strong> Do not panic! </strong></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_get_your_mindset_right">Get your mindset right!</h3>
+<div class="paragraph">
+<p>It&#8217;s easy to get overwhelmed by complex queries. Or anything complex for that matter.</p>
+</div>
+<div class="paragraph">
+<p>In those cases, I like to remind myself of the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>How long it&#8217;ll take doesn&#8217;t matter. It&#8217;ll take as long as it takes. You can&#8217;t go faster than the process.</p>
+</li>
+<li>
+<p>If I feel stress in my body, or any kind of urgency, I stop and take the time to relax first.</p>
+</li>
+<li>
+<p>The only way to get better is to do scary things. So I&#8217;m grateful for the opportunity to learn something new.</p>
+</li>
+<li>
+<p>It would be okay to fail, but only after having tried everything I could.</p>
+</li>
+<li>
+<p>I can only progress one step at a time. First, let&#8217;s understand the issue.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_understand_the_query_2">Understand the query</h3>
+<div class="paragraph">
+<p>Before digging into the query, I like to understand the general structure of the query.</p>
+</div>
+<div class="paragraph">
+<p>At a first glance, we can see that:
+- there are 3 CTEs (items_to_show, participants, start_from_row)
+- there is a big UNION ALL with 3 SELECTs</p>
+</div>
+<div class="paragraph">
+<p>You also need some context. You need to know why this query exists.</p>
+</div>
+<div class="paragraph">
+<p>In this case, it&#8217;s part of a history API. It&#8217;s used to display the history of group of users.</p>
+</div>
+<div class="paragraph">
+<p>This history is composed of 5 types of activities. Some come from different tables. Hence the use of UNION ALL with sub queries.</p>
+</div>
+<div class="paragraph">
+<p>Of course, we can ask ourselves if this is the best way to do it. But that&#8217;s not the point here.</p>
+</div>
+<div class="paragraph">
+<p>We can use EXPLAIN to get more information about the query.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">    EXPLAIN # The query...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s the interesting part in the result:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+	"table": "permissions_generated",
+	"rows":
+	[
+		{
+			"id": 5,
+			"select_type": "DERIVED",
+			"table": "answers",
+			"partitions": null,
+			"type": "ALL",
+			"possible_keys": "fk_answers_participant_id_attempt_id_item_id_results",
+			"key": null,
+			"key_len": null,
+			"ref": null,
+			"rows": 2356760,
+			"filtered": 1.85,
+			"Extra": "Using where; Using filesort"
+		}
+	]
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can see that the query is using <strong>filesort</strong>, on more than 2 million rows. This is probably the cause of the slowness.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_narrow_down_the_origin_of_the_problem">Narrow down the origin of the problem</h3>
+<div class="paragraph">
+<p>Since the query is composed of 3 sub queries, we can easily test manually each of them.</p>
+</div>
+<div class="paragraph">
+<p>By testing we find that the first sub query is taking almost all the time:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sql hljs" data-lang="sql">SELECT
+  limited_answers.*,
+  gradings.score
+FROM
+  (
+    SELECT
+      STRAIGHT_JOIN
+      /* tell the optimizer we don't want to convert IN(...) into JOIN */
+      CASE answers.type WHEN 'Submission' THEN 2 WHEN 'Saved' THEN 4 WHEN 'Current' THEN 5 END AS activity_type_int,
+      answers.created_at AS at,
+      answers.id AS answer_id,
+      answers.attempt_id,
+      answers.participant_id,
+      answers.item_id,
+      author_id AS user_id
+    FROM
+      `answers`
+    WHERE
+      (
+        answers.participant_id IN (
+          SELECT
+            id
+          FROM
+            participants
+        )
+      )
+      AND (
+        answers.item_id IN (
+          SELECT
+            id
+          FROM
+            items_to_show
+        )
+      )
+      AND (answers.created_at &lt;= NOW())
+      AND (
+        answers.participant_id &lt;= (
+          SELECT
+            MAX(id)
+          FROM
+            participants
+        )
+      )
+      AND (
+        answers.participant_id &gt;= (
+          SELECT
+            MIN(id)
+          FROM
+            participants
+        )
+      )
+      AND (
+        answers.item_id &lt;= (
+          SELECT
+            MAX(id)
+          FROM
+            items_to_show
+        )
+      )
+      AND (
+        answers.item_id &gt;= (
+          SELECT
+            MIN(id)
+          FROM
+            items_to_show
+        )
+      )
+    ORDER BY
+      answers.created_at DESC,
+      answers.item_id ASC,
+      answers.participant_id ASC,
+      answers.attempt_id DESC,
+      CASE answers.type WHEN 'Submission' THEN 2 WHEN 'Saved' THEN 4 WHEN 'Current' THEN 5 END DESC,
+      answers.id ASC
+    LIMIT
+      20
+  ) AS limited_answers
+  LEFT JOIN gradings ON gradings.answer_id = limited_answers.answer_id</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>By narrowing down even further, we find that the problem is coming from the ORDER BY clause.
+This is exactly what we saw in the EXPLAIN result.</p>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s some interesting questions to ask yourself at this point:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Do we really need to sort the results?</p>
+</li>
+<li>
+<p>Why&#8217;s the ORDER BY so complex? Can we simplify it?</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The problem is that we cannot create an index with the CASE&#8230;&#8203;WHEN&#8230;&#8203;END statement.</p>
+</div>
+<div class="paragraph">
+<p>Fortunately, it can be removed because it&#8217;s not actually used.
+It is merely used as a tie breaker, for the results to be deterministic.
+We can continue to sort by answers.type, but the actual order doesn&#8217;t matter.
+It seems that the statement was either copied or is coming from a previous version of the query.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_fix_the_issue">Fix the issue</h3>
+<div class="paragraph">
+<p>We can update the query by removing the CASE&#8230;&#8203;WHEN&#8230;&#8203;END statement.</p>
+</div>
+<div class="paragraph">
+<p>Then, we create an index on the columns used in the ORDER BY clause.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sql hljs" data-lang="sql">ALTER TABLE `answers` ADD INDEX `c_at_desc_item_id_part_id_attempt_id_desc_type_desc_answers`
+	(`created_at` DESC,`item_id`,`participant_id`,`attempt_id` DESC, `type` DESC, id)
+;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We finally check that the query is now using the index.</p>
+</div>
+<div class="paragraph">
+<p>Result: the query is now executed instantly.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_things_that_we_should_investigate_before_we_close_the_issue">Things that we should investigate before we close the issue</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Will the other parts of the query pose a problem in the future?</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Here, we can see that the other parts of the query are already using an index. So they should be fine.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_conclusion">Conclusion</h3>
+<div class="paragraph">
+<p>We&#8217;ve seen that in order to optimize a complex SQL query, we need to:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Replicate the slow execution time</p>
+</li>
+<li>
+<p>Find the culprit</p>
+</li>
+<li>
+<p>Get your mindset right!</p>
+</li>
+<li>
+<p>Understand the context and the issue</p>
+</li>
+<li>
+<p>Narrow down the origin of the problem</p>
+</li>
+<li>
+<p>Fix the issue</p>
+</li>
+<li>
+<p>Make sure there are no other issues</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>I hope this will help you in your future optimizations!</p>
+</div>
+<div class="paragraph">
+<p>If you have any questions, feel free to ask them in the comments below.</p>
+</div>
+<div class="paragraph">
+<p>If you&#8217;re struggling with performance issues, I might be able to help you. You can <a href="/articles/about-me#contact">contact me</a>.</p>
+</div>
+<div class="paragraph">
+<p>Thank you for reading!</p>
+</div>
+</div>
+</div>
+</div>
