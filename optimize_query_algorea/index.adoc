@@ -1,30 +1,36 @@
 :source-highlighter: highlight.js
-= How to optimize a complex SQL query: experience from AlgoreaBackend
+= How to optimize a complex SQL query: Mindset and Strategy
 
-You know those crazy SQL queries. I recently had to optimize one of them for the project https://github.com/France-ioi/AlgoreaBackend[Algorea,window=_blank].
+You know those crazy SQL queries. I recently optimized one of them for the project https://github.com/France-ioi/AlgoreaBackend[Algorea,window=_blank].
+
+A service of the API was very slow and I've been asked if I can fix it.
 
 I'll describe here the process I took to do that. Along with the mindset I use when I'm facing such challenges.
 
+I believe that the mindset is the most important part.
+It's the secret that makes you better and motivated on the long run.
 
-== Optimize a complex SQL query
 
-=== Replicate the query slow execution time
+== Replicate the slow execution time
 
-First, you need to replicate the slow execution time.
+First, you need to replicate. Don't work without seeing the issue.
+
 This might mean loading a lot of data in your database.
 
 Do not proceed to the next step until you see the slow execution time.
 
 
-=== Find the query
+== Find the culprit
 
-Once you have the slow execution time, you need to find what is the cause.
+Once you see the slow execution time, you need to find the cause.
 
-I'll assume here that the cause is a slow SQL query. It could be coming from the code, or the network.
+Here, the cause is a slow SQL query. But in real life, it could also come from the code, the network, or anything.
 
-You need to have a way to time-debug your code.
+You need to have a way to time-debug your code. Avoid hacking your way in to do that.
+An easy way to debug the execution time will save you a lot of time in the long run.
+If you don't have it, invest now.
 
-In my case, we have all queries along with their execution time logged in a file.
+In this case, we have all queries along with their execution time logged in a file.
 
 This is what I found:
 
@@ -32,7 +38,8 @@ This is what I found:
     [2023-12-12 09:23:47]  [2467.47ms] **complex query here**
 ----
 
-The complex query is the one I need to optimize. It takes 2.5 seconds to execute. It's too much.
+The complex query is the one I need to optimize. It takes 2.5 seconds to execute.
+The whole service takes about the same time to execute, so this is the culprit.
 
 The first thing I do is to copy-paste the query in a SQL editor, and run it to make sure it's as slow as in the logs.
 
@@ -43,13 +50,13 @@ I use HeidiSQL, but you can use any SQL editor you like. As can see at the botto
 We found the culprit!
 
 
-=== Understand the query
+== Look at the issue the eyes
 
 Now that we have the query, we need to understand it.
 
-The first step is to format it. I usually use https://codebeautify.org/sqlformatter[CodeBeautify,window=_blank] for that.
+I like to say that a formatted code is already half understood. So, let's format it.
 
-I like to say that a formatted code is already half understood.
+I usually use https://codebeautify.org/sqlformatter[CodeBeautify,window=_blank] for that.
 
 This is the result:
 
@@ -422,9 +429,9 @@ WHERE
 Now is the key moment. ** Do not panic! **
 
 
-=== Get your mindset right!
+== Get your mindset right!
 
-It's easy to get overwhelmed by complex queries. Or anything complex for that matter.
+It's easy to get overwhelmed by complex queries, or any complex software engineering issue.
 
 In those cases, I like to remind myself of the following:
 
@@ -439,23 +446,38 @@ In those cases, I like to remind myself of the following:
 - I can only progress one step at a time. First, let's understand the issue.
 
 
-=== Understand the query
+== Understand
 
-Before digging into the query, I like to understand the general structure of the query.
+A common mistake is to jump right into the problem, without understanding it first.
 
-At a first glance, we can see that:
-- there are 3 CTEs (items_to_show, participants, start_from_row)
-- there is a big UNION ALL with 3 SELECTs
+You might think it saves time, but it's actually the opposite.
 
-You also need some context. You need to know why this query exists.
+I cannot count the number of times I've been stuck on a problem for hours,
+then solved it in 5 minutes after taking a step back to understand the whole context.
+
+
+=== Understand the context
 
 In this case, it's part of a history API. It's used to display the history of group of users.
 
-This history is composed of 5 types of activities. Some come from different tables. Hence the use of UNION ALL with sub queries.
+This history is composed of 5 types of activities.
+
+The result is paginated, fetching 20 activities at a time.
+
+
+=== Understand the query
+
+Before digging into the details, I like to understand the general structure of the query.
+
+At a first glance, we can see that:
+- there are 3 CTEs (items_to_show, participants, start_from_row)
+- there is a big UNION ALL with 3 SELECT
+
+The context helps us to understand that the 3 SELECT that are union together are used to fetch the different types of activities in one query.
 
 Of course, we can ask ourselves if this is the best way to do it. But that's not the point here.
 
-We can use EXPLAIN to get more information about the query.
+Now we use EXPLAIN to get more information about the query.
 
 [,json]
 ----
@@ -584,7 +606,7 @@ This is exactly what we saw in the EXPLAIN result.
 
 Here's some interesting questions to ask yourself at this point:
 
-- Do we really need to sort the results?
+- Do we really need to sort the results? In this case, we want to see the most recent activities first. So yes.
 
 - Why's the ORDER BY so complex? Can we simplify it?
 
@@ -592,13 +614,14 @@ The problem is that we cannot create an index with the CASE...WHEN...END stateme
 
 Fortunately, it can be removed because it's not actually used.
 It is merely used as a tie breaker, for the results to be deterministic.
-We can continue to sort by answers.type, but the actual order doesn't matter.
+
+We can continue to sort by answers.type to keep the tie-breaker, but the actual order doesn't matter.
 It seems that the statement was either copied or is coming from a previous version of the query.
 
 
-=== Fix the issue
+== Fix the issue
 
-We can update the query by removing the CASE...WHEN...END statement.
+We update the query by removing the CASE...WHEN...END statement.
 
 Then, we create an index on the columns used in the ORDER BY clause.
 
@@ -609,16 +632,18 @@ ALTER TABLE `answers` ADD INDEX `c_at_desc_item_id_part_id_attempt_id_desc_type_
 ;
 ----
 
-We finally check that the query is now using the index.
+We finally check the query again, to make sure it's using the index.
 
-Result: the query is now executed instantly.
+Result: the query is now executed almost instantly.
 
 
-=== Things that we should investigate before we close the issue
+== Check for potential other issues before calling it done
 
-- Will the other parts of the query pose a problem in the future?
+Will the other parts of the query pose a problem in the future?
 
 Here, we can see that the other parts of the query are already using an index. So they should be fine.
+
+This can be seen in the full result of EXPLAIN.
 
 
 === Conclusion
@@ -626,17 +651,21 @@ Here, we can see that the other parts of the query are already using an index. S
 We've seen that in order to optimize a complex SQL query, we need to:
 
 1. Replicate the slow execution time
-2. Find the culprit
+2. Find the query causing the issue
 3. Get your mindset right!
 4. Understand the context and the issue
 5. Narrow down the origin of the problem
-6. Fix the issue
+6. Fix the issue and test it works
 7. Make sure there are no other issues
 
 I hope this will help you in your future optimizations!
 
-If you have any questions, feel free to ask them in the comments below.
+If you have any questions, feel free to ask in the comments below.
 
-If you're struggling with performance issues, I might be able to help you. You can link:/articles/about-me#contact[contact me].
+If you have a better way to do it, I'd love to hear it too!
+
+If your company is struggling with performance issues, I might be able to help you. You can link:/articles/about-me#contact[contact me] to discuss it.
 
 Thank you for reading!
+
+_Photo by link:https://unsplash.com/@sifat_niloy?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash[Sifat Niloy,window=_blank,opts=nofollow] on link:https://unsplash.com/photos/a-circular-stained-glass-window-in-a-building-2OsgcS-135s?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash[Unsplash,window=_blank,opts=nofollow]_

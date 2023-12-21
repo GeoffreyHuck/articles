@@ -1,39 +1,50 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>You know those crazy SQL queries. I recently had to optimize one of them for the project <a href="https://github.com/France-ioi/AlgoreaBackend" target="_blank" rel="noopener">Algorea</a>.</p>
+<p>You know those crazy SQL queries. I recently optimized one of them for the project <a href="https://github.com/France-ioi/AlgoreaBackend" target="_blank" rel="noopener">Algorea</a>.</p>
+</div>
+<div class="paragraph">
+<p>A service of the API was very slow and I&#8217;ve been asked if I can fix it.</p>
 </div>
 <div class="paragraph">
 <p>I&#8217;ll describe here the process I took to do that. Along with the mindset I use when I&#8217;m facing such challenges.</p>
 </div>
+<div class="paragraph">
+<p>I believe that the mindset is the most important part.
+It&#8217;s the secret that makes you better and motivated on the long run.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_optimize_a_complex_sql_query">Optimize a complex SQL query</h2>
+<h2 id="_replicate_the_slow_execution_time">Replicate the slow execution time</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_replicate_the_query_slow_execution_time">Replicate the query slow execution time</h3>
 <div class="paragraph">
-<p>First, you need to replicate the slow execution time.
-This might mean loading a lot of data in your database.</p>
+<p>First, you need to replicate. Don&#8217;t work without seeing the issue.</p>
+</div>
+<div class="paragraph">
+<p>This might mean loading a lot of data in your database.</p>
 </div>
 <div class="paragraph">
 <p>Do not proceed to the next step until you see the slow execution time.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_find_the_query">Find the query</h3>
+</div>
+<div class="sect1">
+<h2 id="_find_the_culprit">Find the culprit</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>Once you have the slow execution time, you need to find what is the cause.</p>
+<p>Once you see the slow execution time, you need to find the cause.</p>
 </div>
 <div class="paragraph">
-<p>I&#8217;ll assume here that the cause is a slow SQL query. It could be coming from the code, or the network.</p>
+<p>Here, the cause is a slow SQL query. But in real life, it could also come from the code, the network, or anything.</p>
 </div>
 <div class="paragraph">
-<p>You need to have a way to time-debug your code.</p>
+<p>You need to have a way to time-debug your code. Avoid hacking your way in to do that.
+An easy way to debug the execution time will save you a lot of time in the long run.
+If you don&#8217;t have it, invest now.</p>
 </div>
 <div class="paragraph">
-<p>In my case, we have all queries along with their execution time logged in a file.</p>
+<p>In this case, we have all queries along with their execution time logged in a file.</p>
 </div>
 <div class="paragraph">
 <p>This is what I found:</p>
@@ -44,7 +55,8 @@ This might mean loading a lot of data in your database.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The complex query is the one I need to optimize. It takes 2.5 seconds to execute. It&#8217;s too much.</p>
+<p>The complex query is the one I need to optimize. It takes 2.5 seconds to execute.
+The whole service takes about the same time to execute, so this is the culprit.</p>
 </div>
 <div class="paragraph">
 <p>The first thing I do is to copy-paste the query in a SQL editor, and run it to make sure it&#8217;s as slow as in the logs.</p>
@@ -61,16 +73,18 @@ This might mean loading a lot of data in your database.</p>
 <p>We found the culprit!</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_understand_the_query">Understand the query</h3>
+</div>
+<div class="sect1">
+<h2 id="_look_at_the_issue_the_eyes">Look at the issue the eyes</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>Now that we have the query, we need to understand it.</p>
 </div>
 <div class="paragraph">
-<p>The first step is to format it. I usually use <a href="https://codebeautify.org/sqlformatter" target="_blank" rel="noopener">CodeBeautify</a> for that.</p>
+<p>I like to say that a formatted code is already half understood. So, let&#8217;s format it.</p>
 </div>
 <div class="paragraph">
-<p>I like to say that a formatted code is already half understood.</p>
+<p>I usually use <a href="https://codebeautify.org/sqlformatter" target="_blank" rel="noopener">CodeBeautify</a> for that.</p>
 </div>
 <div class="paragraph">
 <p>This is the result:</p>
@@ -445,10 +459,12 @@ WHERE
 <p>Now is the key moment. <strong> Do not panic! </strong></p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_get_your_mindset_right">Get your mindset right!</h3>
+</div>
+<div class="sect1">
+<h2 id="_get_your_mindset_right">Get your mindset right!</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>It&#8217;s easy to get overwhelmed by complex queries. Or anything complex for that matter.</p>
+<p>It&#8217;s easy to get overwhelmed by complex queries, or any complex software engineering issue.</p>
 </div>
 <div class="paragraph">
 <p>In those cases, I like to remind myself of the following:</p>
@@ -473,30 +489,50 @@ WHERE
 </ul>
 </div>
 </div>
+</div>
+<div class="sect1">
+<h2 id="_understand">Understand</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A common mistake is to jump right into the problem, without understanding it first.</p>
+</div>
+<div class="paragraph">
+<p>You might think it saves time, but it&#8217;s actually the opposite.</p>
+</div>
+<div class="paragraph">
+<p>I cannot count the number of times I&#8217;ve been stuck on a problem for hours,
+then solved it in 5 minutes after taking a step back to understand the whole context.</p>
+</div>
 <div class="sect2">
-<h3 id="_understand_the_query_2">Understand the query</h3>
-<div class="paragraph">
-<p>Before digging into the query, I like to understand the general structure of the query.</p>
-</div>
-<div class="paragraph">
-<p>At a first glance, we can see that:
-- there are 3 CTEs (items_to_show, participants, start_from_row)
-- there is a big UNION ALL with 3 SELECTs</p>
-</div>
-<div class="paragraph">
-<p>You also need some context. You need to know why this query exists.</p>
-</div>
+<h3 id="_understand_the_context">Understand the context</h3>
 <div class="paragraph">
 <p>In this case, it&#8217;s part of a history API. It&#8217;s used to display the history of group of users.</p>
 </div>
 <div class="paragraph">
-<p>This history is composed of 5 types of activities. Some come from different tables. Hence the use of UNION ALL with sub queries.</p>
+<p>This history is composed of 5 types of activities.</p>
+</div>
+<div class="paragraph">
+<p>The result is paginated, fetching 20 activities at a time.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_understand_the_query">Understand the query</h3>
+<div class="paragraph">
+<p>Before digging into the details, I like to understand the general structure of the query.</p>
+</div>
+<div class="paragraph">
+<p>At a first glance, we can see that:
+- there are 3 CTEs (items_to_show, participants, start_from_row)
+- there is a big UNION ALL with 3 SELECT</p>
+</div>
+<div class="paragraph">
+<p>The context helps us to understand that the 3 SELECT that are union together are used to fetch the different types of activities in one query.</p>
 </div>
 <div class="paragraph">
 <p>Of course, we can ask ourselves if this is the best way to do it. But that&#8217;s not the point here.</p>
 </div>
 <div class="paragraph">
-<p>We can use EXPLAIN to get more information about the query.</p>
+<p>Now we use EXPLAIN to get more information about the query.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -634,7 +670,7 @@ This is exactly what we saw in the EXPLAIN result.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Do we really need to sort the results?</p>
+<p>Do we really need to sort the results? In this case, we want to see the most recent activities first. So yes.</p>
 </li>
 <li>
 <p>Why&#8217;s the ORDER BY so complex? Can we simplify it?</p>
@@ -646,15 +682,20 @@ This is exactly what we saw in the EXPLAIN result.</p>
 </div>
 <div class="paragraph">
 <p>Fortunately, it can be removed because it&#8217;s not actually used.
-It is merely used as a tie breaker, for the results to be deterministic.
-We can continue to sort by answers.type, but the actual order doesn&#8217;t matter.
+It is merely used as a tie breaker, for the results to be deterministic.</p>
+</div>
+<div class="paragraph">
+<p>We can continue to sort by answers.type to keep the tie-breaker, but the actual order doesn&#8217;t matter.
 It seems that the statement was either copied or is coming from a previous version of the query.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_fix_the_issue">Fix the issue</h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_fix_the_issue">Fix the issue</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>We can update the query by removing the CASE&#8230;&#8203;WHEN&#8230;&#8203;END statement.</p>
+<p>We update the query by removing the CASE&#8230;&#8203;WHEN&#8230;&#8203;END statement.</p>
 </div>
 <div class="paragraph">
 <p>Then, we create an index on the columns used in the ORDER BY clause.</p>
@@ -667,24 +708,24 @@ It seems that the statement was either copied or is coming from a previous versi
 </div>
 </div>
 <div class="paragraph">
-<p>We finally check that the query is now using the index.</p>
+<p>We finally check the query again, to make sure it&#8217;s using the index.</p>
 </div>
 <div class="paragraph">
-<p>Result: the query is now executed instantly.</p>
+<p>Result: the query is now executed almost instantly.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_things_that_we_should_investigate_before_we_close_the_issue">Things that we should investigate before we close the issue</h3>
-<div class="ulist">
-<ul>
-<li>
+</div>
+<div class="sect1">
+<h2 id="_check_for_potential_other_issues_before_calling_it_done">Check for potential other issues before calling it done</h2>
+<div class="sectionbody">
+<div class="paragraph">
 <p>Will the other parts of the query pose a problem in the future?</p>
-</li>
-</ul>
 </div>
 <div class="paragraph">
 <p>Here, we can see that the other parts of the query are already using an index. So they should be fine.</p>
 </div>
+<div class="paragraph">
+<p>This can be seen in the full result of EXPLAIN.</p>
 </div>
 <div class="sect2">
 <h3 id="_conclusion">Conclusion</h3>
@@ -697,7 +738,7 @@ It seems that the statement was either copied or is coming from a previous versi
 <p>Replicate the slow execution time</p>
 </li>
 <li>
-<p>Find the culprit</p>
+<p>Find the query causing the issue</p>
 </li>
 <li>
 <p>Get your mindset right!</p>
@@ -709,7 +750,7 @@ It seems that the statement was either copied or is coming from a previous versi
 <p>Narrow down the origin of the problem</p>
 </li>
 <li>
-<p>Fix the issue</p>
+<p>Fix the issue and test it works</p>
 </li>
 <li>
 <p>Make sure there are no other issues</p>
@@ -720,13 +761,19 @@ It seems that the statement was either copied or is coming from a previous versi
 <p>I hope this will help you in your future optimizations!</p>
 </div>
 <div class="paragraph">
-<p>If you have any questions, feel free to ask them in the comments below.</p>
+<p>If you have any questions, feel free to ask in the comments below.</p>
 </div>
 <div class="paragraph">
-<p>If you&#8217;re struggling with performance issues, I might be able to help you. You can <a href="/articles/about-me#contact">contact me</a>.</p>
+<p>If you have a better way to do it, I&#8217;d love to hear it too!</p>
+</div>
+<div class="paragraph">
+<p>If your company is struggling with performance issues, I might be able to help you. You can <a href="/articles/about-me#contact">contact me</a> to discuss it.</p>
 </div>
 <div class="paragraph">
 <p>Thank you for reading!</p>
+</div>
+<div class="paragraph">
+<p><em>Photo by <a href="https://unsplash.com/@sifat_niloy?utm_content=creditCopyText&amp;utm_medium=referral&amp;utm_source=unsplash" target="_blank" rel="nofollow noopener">Sifat Niloy</a> on <a href="https://unsplash.com/photos/a-circular-stained-glass-window-in-a-building-2OsgcS-135s?utm_content=creditCopyText&amp;utm_medium=referral&amp;utm_source=unsplash" target="_blank" rel="nofollow noopener">Unsplash</a></em></p>
 </div>
 </div>
 </div>
