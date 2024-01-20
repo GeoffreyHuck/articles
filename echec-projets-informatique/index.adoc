@@ -1,0 +1,223 @@
+= Vous en avez marre de voir des projets informatiques échouer ?
+
+Vous n'êtes pas seule. J'ai vu beaucoup de projets échouer dans ma carrière. J'en garde un souvenir amer. Tant d'énergie mise à la poubelle. Avec le recul et l'expérience, je me rends compte qu'une grande partie de cette énergie aurait pu être sauvée.
+
+On peut faire mieux.
+
+Dans cet article, je vous partage les raisons des échecs des projets sur lesquels j'ai travaillé, leurs conséquences, et comment ça aurait pu être évité.
+
+Cela s'applique aux startups aussi bien qu'aux entreprises qui cherchent à se diversifier en trouvant de nouveaux marchés et en lançant de nouveaux produits.
+
+Que vous soyez investisseur, dirigeant, responsable de projet, développeur, vous avez tous le pouvoir d'augmenter les chances de réussite d'un projet.
+
+Mieux : le fait de prendre de la hauteur et de faire preuve d'esprit critique rendra votre travail plus intéressant et vous donnera la sensation de contribuer de manière plus significative.
+
+
+== Les statistiques sont connues
+
+Vous avez sûrement déjà entendu parler de ce chiffre : **2/3 des projets informatiques sont des échecs.**
+
+Quand j'en ai entendu parler pour la première fois, ça m'avait fait rire : il y a tellement d'incompétence dans le milieu ? C'était très naïf, parce que je pensais qu'un projet échoue seulement parce que le travail a été mal fait. Les projets à l'exécution parfaite échouent aussi.
+
+On aimerait croire que les projets informatiques qui échouent, ce sont les projets des autres. Nous, ça risque pas de nous arriver, car on est meilleur.
+
+En début de carrière, cette vision m'a empêchée de voir les vrais échecs : tous ces projets fonctionnels et aboutis qui ne trouvent pas de marché et qui finissent par être abandonnés.
+
+Dans le milieu des startups, c'est encore pire : on parle de 90% d'échecs.
+
+
+== Les échecs des projets informatiques
+
+Quand un projet informatique échoue, les conséquences sont pires que la perte d'un investissement.
+
+On pense à l'aspect financier, car c'est le plus facile à mesurer.
+
+Sauf que l'argent perdu, c'est le moins important. Le pire, ce sont les ravages sur le facteur humain :
+
+- Perte de motivation et de confiance pour les personnes impliquées. Ça implique une baisse de moral, de productivité, moins de chances d'innover à l'avenir, moins de prises de risques.
+
+- Coup dur pour la carrière des personnes impliquées : impossible de montrer les projets sur lesquels on a travaillé. Ça m'est arrivé plusieurs fois, d'être fier de ma contribution à un projet, mais de ne pas pouvoir le montrer, car le projet a été rayé de la carte...
+
+- De l'énergie et du talent ont été gâchés. Pensez que ce sont des ressources rares qu'on ne trouve qu'en quantité limitée dans la société.
+
+
+
+Un projet informatique qui échoue, c'est pas juste une perte d'argent. C'est une perte de temps, de talent et de confiance en l'avenir pour toutes les personnes impliquées, pour l'entreprise, et pour la société.
+
+
+== L'importance d'innover pour demain
+
+Ce qui fait que demain sera plus chouette qu'aujourd'hui, c'est qu'on aura résolu des problèmes qui nous embêtent. Et à chaque fois que de l'énergie est gaspillée, que le moral baisse, on limite notre capacité à résoudre ces problèmes.
+
+Il ne s'agit pas juste d'un problème pour l'entreprise, mais d'un problème pour la société.
+
+Nous avons besoin de nouveaux projets. Nous avons besoin d'explorer le monde des problèmes pour apporter de nouvelles solutions. C'est un prérequis pour créer un demain meilleur.
+
+Et la seule manière d'y arriver, c'est de faire bon usage de nos ressources limitées : nos talents, nos idées, notre motivation et notre confiance.
+
+Nous sommes des humains, chaque échec nous touche et diminue nos chances de succès futur. Vous allez me dire qu'on peut transformer nos échecs en succès : c'est vrai. Individuellement, on peut. Mais c'est pas automatique. C'est pas ce qu'il se passe dans la plupart des cas. Vous pouvez compter sur vous pour devenir plus fort et transcender vos échecs, mais vous n'avez pas le pouvoir de le faire pour les autres.
+
+
+== Pourquoi un projet échoue
+
+La raison la plus commune, de loin, c'est l'échec commercial. Pas assez de clients.
+
+Le modèle est à peu près toujours le même. On a une idée, et on réfléchit. On se pose beaucoup de questions : sur la cible, sur le marché, sur le problème à résoudre, sur ce qui fait que c'est le bon moment, sur les challenges techniques à relever, sur le business modèle.
+
+Une fois qu'on a suffisamment réfléchi, on planifie, on rassemble des gens, et on s'y met. On travaille à fond pour sortir la première version.
+
+Le lancement est plein d'espoir, mais on se rend vite compte que ça marche pas. Pas de trafic, pas d'inscription, pas d'utilisation, pas de paiement, pas d'intérêt.
+
+On continue à y croire pourtant, on fait des mises à jour, on essaie d'autres choses, on essaie de comprendre ce qui coince.
+
+Mais peu à peu on se fait une raison : il vaut mieux arrêter les frais.
+
+Parfois, la raison, c'est aussi qu'on se rend compte que le problème à résoudre est en fait beaucoup plus compliqué que ce qu'on avait imaginé.
+
+
+== Les mauvais signes
+
+Quelques signes annonciateurs de problèmes :
+
+- Un design très travaillé pour une première version
+
+- Un travail poussé sur l'ergonomie avant d'avoir des données significatives d'utilisation
+
+- Le succès repose sur l'effet de réseau
+
+- De lourdes fonctionnalités sont développées pour un seul client
+
+- Aucun travail commercial n'est prévu avant le lancement du produit
+
+
+
+Faîtes preuve de vigilance si certains points s'appliquent à votre situation, mais prenez aussi en compte la spécificité de votre situation.
+
+
+== Comment éviter l'échec
+
+L'échec n'est pas un problème de prédiction. Le monde social et économique est trop complexe pour qu'on puisse savoir ce qui fonctionne à l'avance. On est exposé à un flux continue d'événements imprédictibles. On sait que le cerveau traite l'information de façon très imparfaite. On sait qu'on a énormément de biais de raisonnement. On sait qu'il y a un monde entre être intéressé et payer. Réfléchir plus n'est pas la solution.
+
+Il y a deux solutions pour éviter l'échec :
+
+1. Ne pas commencer
+
+2. Faire de l'échec l'objectif
+
+
+== Ne commencez pas de projets inutiles
+
+Posez-vous les bonnes questions avant de démarrer un projet :
+
+- Quelle est la vraie raison de ce projet ? Diversifier les sources de revenue ? L'amour du problème à résoudre ? Une opportunité incroyable à saisir ? Economiser de l'argent à court ou à long terme ?
+
+- Est-ce que c'est l'opportunité la plus prometteuse **parmi toutes les options dont vous disposez** aujourd'hui ?
+
+- N'êtes-vous pas juste en train de disperser l'énergie et les ressources ?
+
+- N'êtes-vous pas en train de fuir des problèmes que vous avez sur un autre projet ?
+
+- N'existe-t-il pas déjà d'autres solutions qui font suffisamment bien le travail ?
+
+- Est-il possible de tester l'idée sans développement, avec des emails, des tableurs, et des outils no-code ?
+
+
+== Un projet qui réussit, c'est beaucoup de problèmes
+
+
+Les vrais problèmes commencent à la réussite d'un projet. Comment architecturer le code, comment scaler, comment faciliter les mises à jour, comment maintenir la qualité, comment s'assurer de la continuité de service en cas de problèmes, comment structurer les processus de développement...
+
+Un succès amène toujours de nouveaux besoins et de nouveaux développements.
+
+Assurez-vous que ça vaille le coup d'avoir ces problèmes !
+
+
+== Avoir l'échec pour objectif
+
+Un projet qui réussit, c'est comme trouver la sortie d'un labyrinthe. Si on avait la vue d'en haut, on pourrait planifier le chemin à l'avance.
+
+Mais on n'a pas la vue d'en haut. On a juste la bonne vieille vue à la première personne.
+
+On peut marcher longtemps avant de se retrouver dans un cul-de-sac, en ayant construit de belles interfaces.
+
+Mais **on peut aussi explorer plusieurs couloirs en même temps en utilisant des sondes, et se prendre des murs à 100 à l'heure.**
+
+Chaque tentative qui ne fonctionne pas est de l'information que vous obtenez sur le labyrinthe. Plus vous avez d'informations, plus vous avez de chances d'en sortir.
+
+Voilà l'état d'esprit que je vous propose d'adopter :
+
+[quote]
+Soyez pessimiste à court terme et optimiste à long terme. Trouvez la méthode la plus rapide pour prouver que ce que vous voulez faire ne marchera pas. Et dès que c'est prouvé, adaptez votre stratégie.
+
+Adopter cette posture peut être difficile. C'est utile d'être optimiste quand on cherche quelque chose qui marche. Mais c'est important d'être flexible par rapport à la solution, simplement parce qu'il y a infiniment plus de choses qui ne fonctionnent pas, que de choses qui fonctionnent. Assurez-vous d'avoir des personnes qui pensent comme ça dans votre équipe, même si ça vous semble pénible d'avoir des voix contradictoires.
+
+- **Si ça ne fonctionne pas :** vous avez gagné de l'information.
+
+- **Si ça fonctionne :** vous avez gagné.
+
+
+
+Voyez l'argent que vous investissez dans le processus comme l'exploration d'une terre inconnue : le monde économique. Vous voulez explorer le plus de territoire possible en un minimum de temps. Chaque grotte peut se révéler être une mine d'or. Vous n'avez aucune raison de construire des monuments alors que vous ne savez pas ce qui se cache derrière la montagne.
+
+
+== L'importance de la logique et de l'esprit critique
+
+Quand on lit un article comme celui-ci, ou un livre... On a vite tendance à voir les choses sous la forme d'une checklist, et essayer d'avoir le plus de checks qui passent.
+
+Sauf que la réalité, c'est que chaque situation est unique.
+
+La compétence à développer pour réussir, c'est pas de suivre un modèle, un framework de pensée, une checklist, mais bien d'**être capable de voir et d'analyser la situation comme elle est**, sans a priori.
+
+C'est cette compétence fondamentale qui fait la différence.
+
+Il n'existe pas de règle absolue. En plus, chaque règle dépend de son contexte et de son interprétation.
+
+**Dans chaque projet, il y a des règles qui sont reconnues comme des évidences par tout le monde, mais qui dans ce cas précis ne s'appliquent pas.**
+
+Avant d'appliquer quelque chose, posez-vous la question de pourquoi vous le faîte :
+
+- Que voulez-vous accomplir ?
+
+- Quelle solution vous envisagez ?
+
+- Quelles sont les alternatives ?
+
+- Quels sont les avantages et les inconvénients, à court et à long terme, de la solution envisagée et des solutions alternatives ?
+
+- Quelle est la meilleure solution ?
+
+
+
+Ne faîtes rien sans en challenger la raison. Demandez-vous pourquoi vous pensez que c'est la meilleure chose à faire. La raison est plus importante que la solution : à vous de prouver que ça ne tient pas, que ça ne fonctionne pas.
+
+Et bien sûr, revoyez vos décisions passées quand vous avez de nouvelles informations qui changent vos réponses.
+
+
+== En pratique
+
+J'espère que cet article vous a permis de réaliser que vous êtes une personne clé dans la réussite des projets sur lesquels vous contribuez, quel que soit votre rôle.
+
+**Si vous contribuez à la partie technique**, vous pouvez questionner le fondement des décisions et trouver des solutions créatives pour montrer rapidement qu'elles sont fausses.
+
+**Si vous contribuez à la stratégie**, vous pouvez prendre conscience des raisons à l'origine vos décisions, et tester ces raisons directement et plus rapidement, plutôt que d'attendre d'avoir affaire à leurs conséquences.
+
+
+
+Dans les deux cas, vous pouvez vous poser ces deux questions :
+
+1. Pourquoi voulons nous faire ça, parmi toutes les options dont nous disposons ?
+
+2. Comment pouvons-nous prouver que ça ne marchera pas, le plus rapidement possible ?
+
+
+
+Travailler de cette façon vous permettra de maximiser l'information que vous obtenez. Les échecs, qui sont des passages obligés sur le chemin de la réussite, seront passés plus rapidement.
+
+Si vous pensez que ce type de raisonnement peut profiter à vos projets et que vous souhaitez en discuter avec moi, vous pouvez écrire un commentaire ou me contacter directement.
+
+
+
+Happy exploration !
+
+
+_Photo by link:https://unsplash.com/fr/@parrish?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash[Parrish Freeman,window=_blank,opts=nofollow] on link:https://unsplash.com/fr/photos/tapis-rouge-et-noir-4rF9RftX4XA?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash[Unsplash,window=_blank,opts=nofollow]_
