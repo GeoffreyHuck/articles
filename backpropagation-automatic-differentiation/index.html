@@ -12,77 +12,77 @@
 <h2 id="_the_automatic_differenciation_algorithm">The automatic differenciation algorithm</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Let&#8217;s start by defining a vector of \(n = 5\) elements \(\mathbf{v} = (1, 2, 3, 4, 5)\) and the following example function :</p>
+<p>Let&#8217;s start by defining a vector of <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-c2ec17c139a8e866e7df7274cd3fd9e8.png" alt="stem c2ec17c139a8e866e7df7274cd3fd9e8" width="42" height="10"></span> elements <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-9ec23e20b0561b7d96e4fc6a56d0de3b.png" alt="stem 9ec23e20b0561b7d96e4fc6a56d0de3b" width="126" height="16"></span> and the following example function :</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[f(\mathbf{v}) = \sum_{i=1}^{n}(2 \cdot \mathbf{v}_{[i]}) + cos(\sum_{i=1}^{n} 2 \cdot \mathbf{v}_{[i]}) +\mathbf{v}_{[2]}\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-a8e2cc02cc3e2e62c8a7d366fb698232.png" alt="$$f(\mathbf{v}) = \sum_{i=1}^{n}(2 \cdot \mathbf{v}_{[i]}) + cos(\sum_{i=1}^{n} 2 \cdot \mathbf{v}_{[i]}) +\mathbf{v}_{[2]}$$" width="315" height="46">
 </div>
 </div>
 <div class="paragraph">
 <p>To compute the gradient of this function, we need to calculate its derivatives with respect to each of the five variables :</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\nabla f = \left(
+<img src="/articles/backpropagation-automatic-differentiation/stem-36227f3b62629921cec3e82271574d2c.png" alt="$$\nabla f = \left(
 \frac{\partial f}{\partial \mathbf{v}_{[1]}},
 \frac{\partial f}{\partial \mathbf{v}_{[2]}},
 \frac{\partial f}{\partial \mathbf{v}_{[3]}},
 \frac{\partial f}{\partial \mathbf{v}_{[4]}},
 \frac{\partial f}{\partial \mathbf{v}_{[5]}}]
-\right)\]
+\right)$$" width="223" height="34">
 </div>
 </div>
 <div class="paragraph">
-<p>We could calculate each one separately but imagine that \(\mathbf{v}\) contained one million elements, that would not be very efficient. Instead, we will start by evaluating \(f(\mathbf{v})\) while storing the intermediate steps. In a neural network, this step is equivalent to calculating a prediction from an input.</p>
+<p>We could calculate each one separately but imagine that <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-f6fc3ac36dff143d4aac9d145fadc77e.png" alt="stem f6fc3ac36dff143d4aac9d145fadc77e" width="10" height="8"></span> contained one million elements, that would not be very efficient. Instead, we will start by evaluating <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-f537732494e4738e8c9f2204e1af7f7c.png" alt="stem f537732494e4738e8c9f2204e1af7f7c" width="33" height="16"></span> while storing the intermediate steps. In a neural network, this step is equivalent to calculating a prediction from an input.</p>
 </div>
 <div class="sect2">
 <h3 id="_forward_mode">Forward mode</h3>
 <div class="paragraph">
-<p>The first step is to calculate \(2 \cdot \mathbf{v}_{[i]}\) for each \(\mathbf{v}_{[i]}\). We will put the result in the \(\mathbf{results\_2v}\) vector.</p>
+<p>The first step is to calculate <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-53f2a0a85284ae9bf6ac621fa10c5542.png" alt="stem 53f2a0a85284ae9bf6ac621fa10c5542" width="44" height="17"></span> for each <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-bff3dd8c334134af1c143d7112c6aa81.png" alt="stem bff3dd8c334134af1c143d7112c6aa81" width="22" height="13"></span>. We will put the result in the <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-9c7cf7bac411f35ef2ab6e7c65bd181f.png" alt="stem 9c7cf7bac411f35ef2ab6e7c65bd181f" width="96" height="14"></span> vector.</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\mathbf{results\_2v} =
+<img src="/articles/backpropagation-automatic-differentiation/stem-1a03ebb1fe963ca98bab79ff44e87a90.png" alt="$$\mathbf{results\_2v} =
 (2 \cdot \mathbf{v}_{[1]}, 2 \cdot \mathbf{v}_{[2]}, 2 \cdot \mathbf{v}_{[3]}, 2 \cdot \mathbf{v}_{[4]}, 2 \cdot \mathbf{v}_{[5]}) =
-(2, 4, 6, 8, 10)\]
+(2, 4, 6, 8, 10)$$" width="399" height="14">
 </div>
 </div>
 <div class="paragraph">
-<p>Now we can compute the sum and store it in a \(sum\_2v\) variable :</p>
+<p>Now we can compute the sum and store it in a <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-d16ce301135cedfb58159b5a3f22e144.png" alt="stem d16ce301135cedfb58159b5a3f22e144" width="70" height="14"></span> variable :</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[sum\_2v = \sum_{i=1}^{n}(\mathbf{results\_2v}_{[i]}) =
+<img src="/articles/backpropagation-automatic-differentiation/stem-6ff77b71471d4a52302e7c556fb34d10.png" alt="$$sum\_2v = \sum_{i=1}^{n}(\mathbf{results\_2v}_{[i]}) =
 (2 + 4 + 6 + 8 + 10) =
-30\]
+30$$" width="340" height="35">
 </div>
 </div>
 <div class="paragraph">
 <p>Then we need to calculate the cosinus of the sum, we will round the value at 5 decimals for convenience :</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[cos\_sum\_2v = cos(sum\_2v) = cos(30) = 0.15425\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-f62c3d4c03e0162aff3f5ecbae482d88.png" alt="$$cos\_sum\_2v = cos(sum\_2v) = cos(30) = 0.15425$$" width="413" height="16">
 </div>
 </div>
 <div class="paragraph">
 <p>We finally have everything we need to calculate the final result :</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[result = f(\mathbf{v}) = sum\_2v + cos\_sum\_2v + \mathbf{v}_2 = 30 + 0.15425 + 2 = 32.15425\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-cedd1ace816e6a959864c354a9b1fbfe.png" alt="$$result = f(\mathbf{v}) = sum\_2v + cos\_sum\_2v + \mathbf{v}_2 = 30 + 0.15425 + 2 = 32.15425$$" width="615" height="16">
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_reverse_mode">Reverse mode</h3>
 <div class="paragraph">
-<p>We will now propagate the derivatives backwards, starting from \(result\) towards \(\mathbf{v}\) to calculate the gradient of \(f\). We start by calculating the derivatives of \(f\) with respect to \(result\), which is easy because \(f = result\). Since we want all the partial derivatives (the gradient) of \(f\), we will have a vector of derivatives at each step.</p>
+<p>We will now propagate the derivatives backwards, starting from <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-69914638c5b78aa32701c82d9b246b1a.png" alt="stem 69914638c5b78aa32701c82d9b246b1a" width="61" height="12"></span> towards <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-f6fc3ac36dff143d4aac9d145fadc77e.png" alt="stem f6fc3ac36dff143d4aac9d145fadc77e" width="10" height="8"></span> to calculate the gradient of <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-190083ef7a1625fbc75f243cffb9c96d.png" alt="stem 190083ef7a1625fbc75f243cffb9c96d" width="9" height="12"></span>. We start by calculating the derivatives of <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-190083ef7a1625fbc75f243cffb9c96d.png" alt="stem 190083ef7a1625fbc75f243cffb9c96d" width="9" height="12"></span> with respect to <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-69914638c5b78aa32701c82d9b246b1a.png" alt="stem 69914638c5b78aa32701c82d9b246b1a" width="61" height="12"></span>, which is easy because <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-9f0e8fc52254b91d0cfc63a5df7a7af2.png" alt="stem 9f0e8fc52254b91d0cfc63a5df7a7af2" width="91" height="12"></span>. Since we want all the partial derivatives (the gradient) of <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-190083ef7a1625fbc75f243cffb9c96d.png" alt="stem 190083ef7a1625fbc75f243cffb9c96d" width="9" height="12"></span>, we will have a vector of derivatives at each step.</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\frac{\partial f}{\partial(result)} =
+<img src="/articles/backpropagation-automatic-differentiation/stem-f4bc10e162d703467bd92ec392af048a.png" alt="$$\frac{\partial f}{\partial(result)} =
 \begin{pmatrix}
 \frac{\partial (result)}{\partial(result)} = 1 \\
 \frac{\partial (result)}{\partial(result)} = 1 \\
@@ -96,28 +96,28 @@
 1 \\
 1 \\
 1
-\end{pmatrix}\]
+\end{pmatrix}$$" width="243" height="178">
 </div>
 </div>
 <div class="paragraph">
-<p>Now that we have this, we will calculate the gradient \(\nabla f\) with respect to \(cos\_sum\_2v\) because it was the last step before calculating \(result\). The idea is that we have the following relation :</p>
+<p>Now that we have this, we will calculate the gradient <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-5eb3506cf8721a78598195593be1aa9b.png" alt="stem 5eb3506cf8721a78598195593be1aa9b" width="23" height="12"></span> with respect to <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-693ccfc9da3ca61eed163b832f46cc10.png" alt="stem 693ccfc9da3ca61eed163b832f46cc10" width="111" height="14"></span> because it was the last step before calculating <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-69914638c5b78aa32701c82d9b246b1a.png" alt="stem 69914638c5b78aa32701c82d9b246b1a" width="61" height="12"></span>. The idea is that we have the following relation :</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[    f(cos\_sum\_2v) = f(result(cos\_sum\_2v))\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-68a133e74f8bd3e849e7dde7d913d8e2.png" alt="$$    f(cos\_sum\_2v) = f(result(cos\_sum\_2v))$$" width="358" height="16">
 </div>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[    f'(cos\_sum\_2v) = f(result(cos\_sum\_2v))'\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-f4b16a4238b806a158f94e1afe776d2b.png" alt="$$    f'(cos\_sum\_2v) = f(result(cos\_sum\_2v))'$$" width="384" height="16">
 </div>
 </div>
 <div class="paragraph">
-<p>and therefore we can use the chain rule \((f \circ g)' = (f' \circ g) \cdot g'\) which can be noted as \(\frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)}\).</p>
+<p>and therefore we can use the chain rule <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-484d7d20b729584cd01268dea70ad5d9.png" alt="stem 484d7d20b729584cd01268dea70ad5d9" width="172" height="16"></span> which can be noted as <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-7dc2323ded255b17045c798ed9e28ce9.png" alt="stem 7dc2323ded255b17045c798ed9e28ce9" width="172" height="27"></span>.</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\frac{\partial f}{\partial(cos\_sum\_2v)} =
+<img src="/articles/backpropagation-automatic-differentiation/stem-45de2b6916e4aef5ce40e102ac9143a0.png" alt="$$\frac{\partial f}{\partial(cos\_sum\_2v)} =
 \begin{pmatrix}
 \frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)} \\
 \frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(cos\_sum\_2v)} \\
@@ -145,25 +145,25 @@
 1 \\
 1 \\
 1
-\end{pmatrix}\]
+\end{pmatrix}$$" width="726" height="182">
 </div>
 </div>
 <div class="paragraph">
-<p>And we can continue with \(sum\_2v\) using the same trick :</p>
+<p>And we can continue with <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-d16ce301135cedfb58159b5a3f22e144.png" alt="stem d16ce301135cedfb58159b5a3f22e144" width="70" height="14"></span> using the same trick :</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[f(sum\_2v) = result(cos\_sum\_2v(sum\_2v))\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-352131f1cb9092123a54798d761c0a95.png" alt="$$f(sum\_2v) = result(cos\_sum\_2v(sum\_2v))$$" width="376" height="16">
 </div>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[f'(sum\_2v) = result(cos\_sum\_2v(sum\_2v))'\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-2d8ac10d0798dd03f9e23357a0029e52.png" alt="$$f'(sum\_2v) = result(cos\_sum\_2v(sum\_2v))'$$" width="403" height="16">
 </div>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\frac{\partial f}{\partial(sum\_2v)} =
+<img src="/articles/backpropagation-automatic-differentiation/stem-4ea7cb80fc5f5fc95ae9af4c162b64e1.png" alt="$$\frac{\partial f}{\partial(sum\_2v)} =
 \begin{pmatrix}
 \frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)} \\
 \frac{\partial f}{\partial(result)} \cdot \frac{\partial (result)}{\partial(sum\_2v)} \\
@@ -191,25 +191,25 @@
 1 \\
 1 \\
 1
-\end{pmatrix}\]
+\end{pmatrix}$$" width="608" height="182">
 </div>
 </div>
 <div class="paragraph">
-<p>Now it is time for \(\mathbf{results\_2v}\) :</p>
+<p>Now it is time for <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-9c7cf7bac411f35ef2ab6e7c65bd181f.png" alt="stem 9c7cf7bac411f35ef2ab6e7c65bd181f" width="96" height="14"></span> :</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[f(\mathbf{results\_2v}) = f(sum\_2v(\mathbf{results\_2v}))\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-efd4889c50734451ab040c95254527d7.png" alt="$$f(\mathbf{results\_2v}) = f(sum\_2v(\mathbf{results\_2v}))$$" width="337" height="16">
 </div>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[f'(\mathbf{results\_2v}) = f(sum\_2v(\mathbf{results\_2v}))'\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-0ddb8b50ec626e22445444a1260046ae.png" alt="$$f'(\mathbf{results\_2v}) = f(sum\_2v(\mathbf{results\_2v}))'$$" width="363" height="16">
 </div>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\frac{\partial f}{\partial(\mathbf{results\_2v})} =
+<img src="/articles/backpropagation-automatic-differentiation/stem-fbc44dd3ad3d6a56042130cd6f4f8868.png" alt="$$\frac{\partial f}{\partial(\mathbf{results\_2v})} =
 \begin{pmatrix}
 \frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[1]}})} \\
 \frac{\partial f}{\partial(sum\_2v)} \cdot \frac{\partial (sum\_2v)}{\partial(\mathbf{results\_2v_{[2]}})} \\
@@ -237,25 +237,25 @@
 1 \\
 1 \\
 1
-\end{pmatrix}\]
+\end{pmatrix}$$" width="598" height="205">
 </div>
 </div>
 <div class="paragraph">
 <p>And finally the last step :</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[f(\mathbf{v}) = f(\mathbf{results\_2v}(\mathbf{v}))\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-5967cfb0754cc550a738ab13fecf2198.png" alt="$$f(\mathbf{v}) = f(\mathbf{results\_2v}(\mathbf{v}))$$" width="192" height="16">
 </div>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[f'(\mathbf{v}) = f(\mathbf{results\_2v}(\mathbf{v}))'\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-29a76a79fbee485dfebe7a36c0271850.png" alt="$$f'(\mathbf{v}) = f(\mathbf{results\_2v}(\mathbf{v}))'$$" width="218" height="16">
 </div>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\frac{\partial f}{\partial \mathbf{v}} =
+<img src="/articles/backpropagation-automatic-differentiation/stem-15c760380a68409f86c9ac1ff68a2b85.png" alt="$$\frac{\partial f}{\partial \mathbf{v}} =
 \frac{\partial f}{\partial(\mathbf{results\_2v})} \cdot \frac{\partial (\mathbf{results\_2v}))}{\partial \mathbf{v}} =
 \begin{pmatrix}
 \frac{\partial f}{\partial(\mathbf{results\_2v}_{[1]})} \cdot \frac{\partial (2 \cdot \mathbf{v}_{[1]})}{\partial\mathbf{v}_{[1]}} \\
@@ -284,15 +284,15 @@
 2 \\
 2 \\
 2
-\end{pmatrix}\]
+\end{pmatrix}$$" width="671" height="201">
 </div>
 </div>
 <div class="paragraph">
-<p>The resulting vector is the gradient of \(f\) :</p>
+<p>The resulting vector is the gradient of <span class="image"><img src="/articles/backpropagation-automatic-differentiation/stem-190083ef7a1625fbc75f243cffb9c96d.png" alt="stem 190083ef7a1625fbc75f243cffb9c96d" width="9" height="12"></span> :</p>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\nabla f = (2, 4, 2, 2, 2)\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-c2bb50b1472d3f60f0f2492155f4afed.png" alt="$$\nabla f = (2, 4, 2, 2, 2)$$" width="140" height="16">
 </div>
 </div>
 </div>
@@ -309,19 +309,19 @@
 <img src="/articles/backpropagation-automatic-differentiation/simple_ffnn.png" alt="Simple Feed-Forward Neural Network" width="1024" height="603">
 </div>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\mathbf{h}_{[i]} = activation(\sum_{edge=0}^{n\_in} Weight\_h_{[i][edge]} \cdot \mathbf{in}_{[i]})\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-33a2bbb4fb35b3d4c3ce3365f72d0113.png" alt="$$\mathbf{h}_{[i]} = activation(\sum_{edge=0}^{n\_in} Weight\_h_{[i][edge]} \cdot \mathbf{in}_{[i]})$$" width="410" height="49">
 </div>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\mathbf{out}_{[i]} = activation(\sum_{edge=0}^{n\_h} Weight\_out_{[i][edge]} \cdot \mathbf{in}_{[i]})\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-a778c91c5f48b6c51e49d76b14e8486a.png" alt="$$\mathbf{out}_{[i]} = activation(\sum_{edge=0}^{n\_h} Weight\_out_{[i][edge]} \cdot \mathbf{in}_{[i]})$$" width="450" height="49">
 </div>
 </div>
-<div class="stemblock">
+<div class="imageblock text-center">
 <div class="content">
-\[\mathbf{out} = activation(activation(\mathbf{in} \cdot Weight\_h) \cdot Weight\_out)\]
+<img src="/articles/backpropagation-automatic-differentiation/stem-aba5b919407a5ab57b368a502bdec84c.png" alt="$$\mathbf{out} = activation(activation(\mathbf{in} \cdot Weight\_h) \cdot Weight\_out)$$" width="542" height="16">
 </div>
 </div>
 </div>
