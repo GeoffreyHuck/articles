@@ -3,7 +3,7 @@
 
 Automatic differenciation is an efficient way to compute the partial derivatives, also called the gradient, of a function. We will first analyse how it works on a simple example before applying it in the context of a multilayer neural network as the backpropagation algorithm for doing gradient descent.
 
-If you don't know what a gradient is, or if you need a refresher about the mathematical rules derivatives are calculated, I wrote an article about https://geoffreyhuck.com/articles/machine-learning-derivatives[the rules of derivatives and gradient].
+If you don't know what a gradient is, or if you need a refresher about the mathematical rules derivatives are calculated, I wrote an article about https://geoffreyhuck.com/en/articles/machine-learning-derivatives[the rules of derivatives and gradient].
 
 == The automatic differenciation algorithm
 
