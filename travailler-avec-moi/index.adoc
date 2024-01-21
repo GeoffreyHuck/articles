@@ -1,0 +1,19 @@
+= Travailler avec un consultant informatique indépendant
+
+image::geoffreyhuck.JPG[Geoffrey Huck, 150, 150, role="left"]
+
+Ma passion pour l'informatique a débuté au moment où j'ai posé les mains sur un ordinateur. J'avais 10 ans et je me souviens encore de l'émerveillement que j'ai ressenti en accédant à Internet. C'est à partir de là que j'ai découvert la programmation en langage C, la communauté des hackers et les algorithmes.
+
+En 2007, j'ai représenté la France aux Olympiades Internationales d'Informatique (IOI). J'ai aussi été finaliste au concours national français Prologin de 2007 à 2010.
+
+En 2012, j'ai lancé mes services de développement web en freelance.
+
+Puis j'ai fondé GEOT S.A.S en 2015, une société de conseil et de développement pour les entreprises et les organisations.
+
+J'ai exploré le monde en tant que nomade digital en 2018-2019, à l'époque pré-corona, où j'ai eu la chance incroyable de voir le monde sous différentes perspectives culturelles.
+
+Une partie de mon travail est open-source, et vous pouvez le trouver sur https://github.com/GeoffreyHuck[ma page GitHub]. Vous y trouverez mes contributions à la plateforme d'apprentissage en ligne Algorea, ainsi qu'à l'outil open-source Codecast qui permet d'enregistrer et de rejouer des sessions de codage interactives en Python sur votre navigateur. J'y ai aussi publié le code, ainsi que le contenu de ce blog.
+
+Aujourd'hui, je vis en France avec ma famille, approfondissant mes connaissances et ma compréhension de la vie et des sciences.
+
+Si vous pensez que je peux vous aider à réaliser vos projets informatiques, vous pouvez m'engager comme consultant indépendant en prenant contact via le formulaire. Je suis disponible pour des missions de conseil, de développement, de formation et de coaching.
